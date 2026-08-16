@@ -22,7 +22,8 @@ export const site = {
 export const nav = [
   { label: "Work", href: "#work" },
   { label: "About", href: "#about" },
-  { label: "Craft", href: "#craft" },
+  { label: "Capabilities", href: "#capabilities" },
+  { label: "Experience", href: "#experience" },
   { label: "Contact", href: "#contact" },
 ] as const;
 
@@ -165,32 +166,97 @@ export const about = {
   ],
 };
 
-export const craft = {
-  intro: "How the work holds together.",
+// Capabilities — the six disciplines, now with a proficiency read (0–100) and
+// the concrete toolkit. Levels are placeholders; swap for real self-assessment.
+export const capabilities = {
+  intro: "What I bring to the work.",
   disciplines: [
     {
       title: "Motion with physics",
       body: "Inertia, springs, and velocity-reactive type. Custom easing over defaults — every movement answers why it moves.",
+      level: 96,
     },
     {
       title: "WebGL & shaders",
       body: "Displacement, distortion, particle fields. One signature moment per project, budgeted to stay under the frame.",
+      level: 88,
     },
     {
       title: "Scroll as narrative",
       body: "Pinned scenes, masked reveals, and smooth-scroll choreography that turns a page into a sequence.",
+      level: 92,
     },
     {
       title: "Performance discipline",
       body: "Core Web Vitals defended, transforms only, canvases lazy-loaded. Fast and fancy are not a trade.",
+      level: 94,
     },
     {
       title: "Accessible by default",
       body: "Reduced-motion honored, semantics intact, keyboard paths real. Spectacle that never taxes the user.",
+      level: 90,
     },
     {
       title: "Systems, not screens",
       body: "Design tokens shared by CSS and JS; motion primitives reused. The site is a system that scales.",
+      level: 95,
     },
   ],
+  toolkit: [
+    "TypeScript",
+    "React",
+    "Next.js",
+    "GSAP",
+    "Three.js",
+    "OGL / WebGL",
+    "Motion",
+    "Tailwind CSS",
+    "Node.js",
+    "GLSL",
+  ],
 };
+
+export type Role = {
+  period: string;
+  company: string;
+  role: string;
+  blurb: string;
+  tags: string[];
+};
+
+// Placeholder experience — mirrors the timeline from the reference. Confirm /
+// replace with the real history.
+export const experience: Role[] = [
+  {
+    period: "2024 — Present",
+    company: "Cavista",
+    role: "Software Engineer",
+    blurb:
+      "Building and maintaining healthcare software for palliative care and home-health providers.",
+    tags: ["Aurelia.js", "TypeScript", "C#", ".NET"],
+  },
+  {
+    period: "Jan 2025 — May 2026",
+    company: "FoodCS (Contract)",
+    role: "Software Engineer",
+    blurb:
+      "Architected and delivered an AI-powered marketplace with messaging, escrow payments, and AI recommendations.",
+    tags: ["Next.js", "Node.js", "PostgreSQL", "AI"],
+  },
+  {
+    period: "Jan 2023 — Sep 2024",
+    company: "Aufera",
+    role: "Frontend Engineer",
+    blurb:
+      "Built features for a peer-to-peer vehicle-sharing platform and its insurance dashboard.",
+    tags: ["React", "TypeScript", "JavaScript"],
+  },
+  {
+    period: "Aug 2022 — May 2023",
+    company: "Harbor Inc. Technologies",
+    role: "Frontend Developer",
+    blurb:
+      "Developed the corporate website and improved performance and user experience.",
+    tags: ["HTML", "CSS", "JavaScript"],
+  },
+];
