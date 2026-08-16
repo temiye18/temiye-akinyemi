@@ -1,26 +1,113 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ------------------------------------------------------------------ *
+ * OBSIDIAN + KINETIC — design tokens (see docs/DESIGN.md)
+ * Blue-ink near-black ground · cool off-white ink · one sodium-amber signal
+ * ------------------------------------------------------------------ */
+@theme {
+  /* color */
+  --color-ground: #0b0c12;
+  --color-surface: #101219;
+  --color-surface-2: #161923;
+  --color-line: rgba(233, 233, 241, 0.09);
+  --color-line-strong: rgba(233, 233, 241, 0.16);
+  --color-ink: #e9e9f1;
+  --color-muted: #9a9aae;
+  --color-faint: #63647a;
+  --color-accent: #e6a251;
+  --color-accent-soft: rgba(230, 162, 81, 0.13);
+  --color-hazard: #c96b5e;
+
+  /* motion — shared source for CSS and JS (GSAP/Motion) */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+  --dur-fast: 0.4s;
+  --dur-base: 0.8s;
+  --dur-slow: 1.2s;
 }
 
+/* next/font variables mapped to Tailwind font utilities */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --font-display: var(--font-fraunces);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ------------------------------------------------------------------ *
+ * Base
+ * ------------------------------------------------------------------ */
+:root {
+  color-scheme: dark;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-ground);
+  color: var(--color-ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-ground);
+}
+
+/* Kinetic / display type leans on Fraunces */
+h1,
+h2,
+h3 {
+  font-family: var(--font-display), Georgia, serif;
+  text-wrap: balance;
+  font-weight: 500;
+}
+
+/* The "signal" voice — mono labels, uppercase, letter-spaced */
+.eyebrow {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------------ *
+ * Custom cursor — only on fine-pointer devices (set by <Cursor/>)
+ * ------------------------------------------------------------------ */
+body[data-cursor="on"] {
+  cursor: none;
+}
+body[data-cursor="on"] a,
+body[data-cursor="on"] button,
+body[data-cursor="on"] [data-cursor-target] {
+  cursor: none;
+}
+
+/* Keyboard focus is always visible */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+/* ------------------------------------------------------------------ *
+ * Reduced motion — the hard requirement
+ * ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
