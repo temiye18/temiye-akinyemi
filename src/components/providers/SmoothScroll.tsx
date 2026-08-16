@@ -23,6 +23,8 @@ export default function SmoothScroll({
         smoothWheel: !reduce,
         wheelMultiplier: 1,
         touchMultiplier: 1.5,
+        // smooth-scroll in-page anchor links, offset to clear the fixed nav
+        anchors: reduce ? false : { offset: -80 },
       }}
     >
       {children}
