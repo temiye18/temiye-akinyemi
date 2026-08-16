@@ -11,7 +11,7 @@ export default function Hero() {
   return (
     <section
       id="top"
-      className="relative flex min-h-[100svh] flex-col justify-center overflow-hidden px-6 sm:px-10 lg:px-16"
+      className="relative flex min-h-[100svh] flex-col overflow-hidden px-6 pb-20 pt-28 sm:px-10 lg:px-16"
     >
       {/* Warm monochrome cursor-reactive field, behind the type. */}
       <div aria-hidden className="absolute inset-0 -z-10">
@@ -20,7 +20,7 @@ export default function Hero() {
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,color-mix(in_srgb,var(--color-ground)_82%,transparent),color-mix(in_srgb,var(--color-ground)_30%,transparent)_55%,transparent)]" />
       </div>
 
-      <div className="mx-auto w-full max-w-[1600px]">
+      <div className="mx-auto my-auto w-full max-w-[1600px]">
         <div className="relative w-fit">
           <h1 className="text-[clamp(2.5rem,8vw,7rem)] font-medium leading-[0.96] tracking-[-0.035em]">
             <MaskText as="span" text="Interfaces that" className="block" />
@@ -64,7 +64,7 @@ export default function Hero() {
         </Reveal>
 
         {/* meta — below the fold of the headline, not a kicker above it */}
-        <Reveal delay={0.8} className="mt-20">
+        <Reveal delay={0.8} className="mt-12 sm:mt-16 lg:mt-20">
           <dl className="flex flex-wrap gap-x-12 gap-y-4 border-t border-[var(--color-line)] pt-6">
             {[
               { k: "Discipline", v: site.role },

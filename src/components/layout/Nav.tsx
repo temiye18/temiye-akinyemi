@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { nav, site } from "@/lib/content";
 import ThemeToggle from "@/components/ui/ThemeToggle";
+import Mode2D3DToggle from "@/components/ui/Mode2D3DToggle";
 
 /**
  * Fixed top navigation. Condenses (blur + hairline) once the hero is scrolled
@@ -50,11 +51,12 @@ export default function Nav() {
           ))}
         </ul>
 
-        <div className="flex items-center gap-5">
-          <span className="eyebrow hidden items-center gap-2 text-[var(--color-muted)] sm:flex">
+        <div className="flex items-center gap-4">
+          <span className="eyebrow hidden items-center gap-2 text-[var(--color-muted)] lg:flex">
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-muted)]" />
             {site.status}
           </span>
+          <Mode2D3DToggle />
           <ThemeToggle />
         </div>
       </nav>

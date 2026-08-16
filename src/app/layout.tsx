@@ -3,6 +3,7 @@ import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 import { ViewTransitions } from "next-view-transitions";
 import "./globals.css";
 import SmoothScroll from "@/components/providers/SmoothScroll";
+import ThreeDProvider from "@/components/providers/ThreeDMode";
 import Cursor from "@/components/ui/Cursor";
 import Preloader from "@/components/layout/Preloader";
 
@@ -67,10 +68,12 @@ export default function RootLayout({
           >
             Skip to content
           </a>
-          <SmoothScroll>
-            <Preloader />
-            {children}
-          </SmoothScroll>
+          <ThreeDProvider>
+            <SmoothScroll>
+              <Preloader />
+              {children}
+            </SmoothScroll>
+          </ThreeDProvider>
           <Cursor />
         </body>
       </html>
