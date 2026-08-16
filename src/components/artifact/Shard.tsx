@@ -12,12 +12,12 @@ function ShardMesh() {
   });
   return (
     <mesh ref={ref}>
-      {/* faceted obsidian shard */}
+      {/* faceted warm-stone shard — reads on both cream and near-black grounds */}
       <icosahedronGeometry args={[1.35, 0]} />
       <meshStandardMaterial
-        color="#0c0e15"
-        metalness={0.65}
-        roughness={0.22}
+        color="#6a6353"
+        metalness={0.4}
+        roughness={0.38}
         flatShading
       />
     </mesh>
@@ -37,10 +37,10 @@ export default function Shard() {
       gl={{ antialias: true, alpha: true }}
       frameloop="always"
     >
-      <ambientLight intensity={0.35} />
-      <directionalLight position={[3, 3, 4]} intensity={1.4} color="#e9e9f1" />
-      <pointLight position={[-3, -1, -2]} intensity={45} color="#e6a251" />
-      <pointLight position={[2.5, -2, 3]} intensity={22} color="#e6a251" />
+      <ambientLight intensity={0.5} />
+      <directionalLight position={[3, 4, 4]} intensity={2.2} color="#fff8ec" />
+      <directionalLight position={[-4, -1, 1]} intensity={0.6} color="#cfd6e0" />
+      <pointLight position={[-3, -2, 2]} intensity={28} color="#fbf3e4" />
       <ShardMesh />
       <OrbitControls
         enableZoom={false}

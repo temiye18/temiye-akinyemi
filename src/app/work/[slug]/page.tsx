@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Link } from "next-view-transitions";
 import { notFound } from "next/navigation";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ArrowLeft01Icon, ArrowRight01Icon } from "@hugeicons/core-free-icons";
 import { projects, getProject } from "@/lib/content";
 import MaskText from "@/components/motion/MaskText";
 import Reveal from "@/components/motion/Reveal";
@@ -49,9 +51,15 @@ export default async function CasePage({
           <Link
             href="/#work"
             data-cursor-target
-            className="eyebrow inline-flex items-center gap-2 text-[var(--color-muted)] transition-colors hover:text-[var(--color-accent)]"
+            className="eyebrow group inline-flex items-center gap-2 text-[var(--color-muted)] transition-colors hover:text-[var(--color-ink)]"
           >
-            ← Back to work
+            <HugeiconsIcon
+              icon={ArrowLeft01Icon}
+              size={14}
+              strokeWidth={1.75}
+              className="transition-transform duration-300 ease-[var(--ease-out-expo)] group-hover:-translate-x-1"
+            />
+            Back to work
           </Link>
         </Reveal>
 
@@ -103,7 +111,7 @@ export default async function CasePage({
             {sections.map((s) => (
               <Reveal key={s.label}>
                 <section>
-                  <h2 className="eyebrow mb-4 text-[var(--color-accent)]">
+                  <h2 className="eyebrow mb-4 text-[var(--color-muted)]">
                     {s.label}
                   </h2>
                   <p className="text-xl leading-relaxed text-[var(--color-ink)]">
@@ -151,9 +159,12 @@ export default async function CasePage({
                 className="mt-3 text-[clamp(2rem,6vw,4.5rem)] font-medium leading-none tracking-tight transition-transform duration-500 ease-[var(--ease-out-expo)] group-hover:translate-x-2"
               />
             </div>
-            <span className="pb-2 text-3xl text-[var(--color-faint)] transition-all duration-500 ease-[var(--ease-out-expo)] group-hover:translate-x-1 group-hover:text-[var(--color-accent)]">
-              →
-            </span>
+            <HugeiconsIcon
+              icon={ArrowRight01Icon}
+              size={30}
+              strokeWidth={1.4}
+              className="mb-2 text-[var(--color-faint)] transition-all duration-500 ease-[var(--ease-out-expo)] group-hover:translate-x-1 group-hover:text-[var(--color-ink)]"
+            />
           </Link>
         </Reveal>
       </div>

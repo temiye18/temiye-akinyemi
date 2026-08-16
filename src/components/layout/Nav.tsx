@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { nav, site } from "@/lib/content";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 /**
  * Fixed top navigation. Condenses (blur + hairline) once the hero is scrolled
@@ -32,7 +33,7 @@ export default function Nav() {
           className="font-[family-name:var(--font-display)] text-lg tracking-tight text-[var(--color-ink)]"
         >
           {site.name.split(" ")[0]}
-          <span className="text-[var(--color-accent)]">.</span>
+          <span className="text-[var(--color-muted)]">.</span>
         </a>
 
         <ul className="hidden items-center gap-8 md:flex">
@@ -49,10 +50,13 @@ export default function Nav() {
           ))}
         </ul>
 
-        <span className="eyebrow hidden items-center gap-2 text-[var(--color-muted)] sm:flex">
-          <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]" />
-          {site.status}
-        </span>
+        <div className="flex items-center gap-5">
+          <span className="eyebrow hidden items-center gap-2 text-[var(--color-muted)] sm:flex">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-muted)]" />
+            {site.status}
+          </span>
+          <ThemeToggle />
+        </div>
       </nav>
     </header>
   );

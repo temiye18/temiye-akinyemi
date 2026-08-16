@@ -1,4 +1,6 @@
-import Link from "next/link";
+import { Link } from "next-view-transitions";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ArrowUpRight01Icon } from "@hugeicons/core-free-icons";
 import MaskText from "@/components/motion/MaskText";
 import Reveal from "@/components/motion/Reveal";
 import { projects } from "@/lib/content";
@@ -67,9 +69,12 @@ export default function SelectedWork() {
                     <span className="eyebrow text-[var(--color-faint)]">
                       {p.year}
                     </span>
-                    <span className="mt-2 text-2xl text-[var(--color-faint)] opacity-0 transition-all duration-500 ease-[var(--ease-out-expo)] group-hover:translate-x-1 group-hover:text-[var(--color-accent)] group-hover:opacity-100">
-                      ↗
-                    </span>
+                    <HugeiconsIcon
+                      icon={ArrowUpRight01Icon}
+                      size={26}
+                      strokeWidth={1.5}
+                      className="mt-2 text-[var(--color-faint)] opacity-0 transition-all duration-500 ease-[var(--ease-out-expo)] group-hover:translate-x-1 group-hover:text-[var(--color-ink)] group-hover:opacity-100"
+                    />
                   </div>
                 </Link>
               </li>

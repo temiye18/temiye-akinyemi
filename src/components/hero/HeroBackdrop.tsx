@@ -16,7 +16,7 @@ function StaticBackdrop() {
       className="h-full w-full"
       style={{
         background:
-          "radial-gradient(60% 55% at 50% 45%, rgba(230,162,81,0.10), transparent 70%), radial-gradient(120% 100% at 50% 50%, #0e1018 0%, #0b0c12 60%, #08090e 100%)",
+          "radial-gradient(58% 55% at 50% 45%, color-mix(in srgb, var(--color-ink) 7%, transparent), transparent 70%), var(--color-ground)",
       }}
     />
   );

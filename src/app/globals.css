@@ -1,24 +1,28 @@
 @import "tailwindcss";
 
 /* ------------------------------------------------------------------ *
- * OBSIDIAN + KINETIC — design tokens (see docs/DESIGN.md)
- * Blue-ink near-black ground · cool off-white ink · one sodium-amber signal
+ * Warm monochrome — a gallery under warm light.
+ * Warm near-black · warm cream · warm greys. No chromatic accent:
+ * emphasis is the italic serif receding and black/cream contrast.
+ * Dark is the default world; light is a true second theme.
+ * (see docs/DESIGN.md)
  * ------------------------------------------------------------------ */
 @theme {
-  /* color */
-  --color-ground: #0b0c12;
-  --color-surface: #101219;
-  --color-surface-2: #161923;
-  --color-line: rgba(233, 233, 241, 0.09);
-  --color-line-strong: rgba(233, 233, 241, 0.16);
-  --color-ink: #e9e9f1;
-  --color-muted: #9a9aae;
-  --color-faint: #63647a;
-  --color-accent: #e6a251;
-  --color-accent-soft: rgba(230, 162, 81, 0.13);
-  --color-hazard: #c96b5e;
+  /* dark (default) — warm near-black ground, warm cream ink */
+  --color-ground: #0f0e0c;
+  --color-surface: #161410;
+  --color-surface-2: #1e1b15;
+  --color-line: rgba(240, 236, 228, 0.1);
+  --color-line-strong: rgba(240, 236, 228, 0.2);
+  --color-ink: #f2eee4;
+  --color-muted: #a69f92;
+  --color-faint: #857e70;
+  /* "accent" is intentionally ink — pure monochrome; used only where a
+     mark must read at full strength. Emphasis elsewhere is the serif. */
+  --color-accent: #f2eee4;
+  --color-accent-soft: rgba(240, 236, 228, 0.06);
 
-  /* motion — shared source for CSS and JS (GSAP/Motion) */
+  /* motion — shared source for CSS and JS (Motion) */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
   --dur-fast: 0.4s;
@@ -31,6 +35,25 @@
   --font-display: var(--font-fraunces);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+}
+
+/* Light theme — warm cream paper, warm near-black ink. */
+:root[data-theme="light"] {
+  --color-ground: #f3efe6;
+  --color-surface: #fbf9f3;
+  --color-surface-2: #eae3d6;
+  --color-line: rgba(28, 24, 18, 0.12);
+  --color-line-strong: rgba(28, 24, 18, 0.22);
+  --color-ink: #1b1813;
+  --color-muted: #5b5548;
+  --color-faint: #7a7466;
+  --color-accent: #1b1813;
+  --color-accent-soft: rgba(28, 24, 18, 0.05);
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
 }
 
 /* ------------------------------------------------------------------ *
@@ -53,14 +76,18 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
+  /* smooth the theme swap without janking scroll */
+  transition:
+    background-color 0.5s var(--ease-out-expo),
+    color 0.5s var(--ease-out-expo);
 }
 
 ::selection {
-  background: var(--color-accent);
+  background: var(--color-ink);
   color: var(--color-ground);
 }
 
-/* Kinetic / display type leans on Fraunces */
+/* Display / kinetic type leans on Fraunces */
 h1,
 h2,
 h3 {
@@ -69,13 +96,35 @@ h3 {
   font-weight: 500;
 }
 
-/* The "signal" voice — mono labels, uppercase, letter-spaced */
+/* Hero lens — soft veil over the headline that the pointer wipes clear. */
+.lens-veil {
+  --mx: 50%;
+  --my: 50%;
+  background: color-mix(in srgb, var(--color-ground) 34%, transparent);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  -webkit-mask: radial-gradient(
+    circle 210px at var(--mx) var(--my),
+    transparent 0%,
+    transparent 30%,
+    #000 74%
+  );
+  mask: radial-gradient(
+    circle 210px at var(--mx) var(--my),
+    transparent 0%,
+    transparent 30%,
+    #000 74%
+  );
+}
+
+/* Small label — a quiet sans, not a mono costume. */
 .eyebrow {
-  font-family: var(--font-mono), ui-monospace, monospace;
+  font-family: var(--font-sans), system-ui, sans-serif;
   font-size: 0.72rem;
-  letter-spacing: 0.22em;
+  font-weight: 500;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--color-accent);
+  color: var(--color-faint);
   font-variant-numeric: tabular-nums;
 }
 
@@ -93,9 +142,22 @@ body[data-cursor="on"] [data-cursor-target] {
 
 /* Keyboard focus is always visible */
 :focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--color-ink);
   outline-offset: 3px;
-  border-radius: 3px;
+  border-radius: 2px;
+}
+
+/* ------------------------------------------------------------------ *
+ * View Transitions — cinematic case-study morph (shared `title-<slug>`)
+ * ------------------------------------------------------------------ */
+::view-transition-group(*) {
+  animation-duration: 0.55s;
+  animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.5s;
+  animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
 }
 
 /* ------------------------------------------------------------------ *
@@ -109,5 +171,10 @@ body[data-cursor="on"] [data-cursor-target] {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }

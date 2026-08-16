@@ -1,19 +1,17 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Renderer, Program, Mesh, Triangle, Vec2 } from "ogl";
+import { Renderer, Program, Mesh, Triangle, Vec2, Color } from "ogl";
 
 /**
- * OBSIDIAN atmosphere — a domain-warped noise field in blue-ink that pools warm
- * sodium-amber light around the pointer, like a lamp moving through fog. Cheap
- * single-pass fragment shader via OGL (a few KB, no Three.js). SSR-disabled by
- * its dynamic import; reduced-motion callers render the static fallback instead.
+ * Warm-monochrome atmosphere — a domain-warped noise field that pools soft light
+ * (dark theme) or soft shadow (light theme) around the pointer, like something
+ * moving beneath frosted glass. Cheap single-pass fragment shader via OGL.
+ * Theme-driven: it re-reads its palette when `data-theme` flips.
  */
 const VERT = /* glsl */ `
   attribute vec2 position;
-  void main() {
-    gl_Position = vec4(position, 0.0, 1.0);
-  }
+  void main() { gl_Position = vec4(position, 0.0, 1.0); }
 `;
 
 const FRAG = /* glsl */ `
@@ -22,16 +20,17 @@ const FRAG = /* glsl */ `
   uniform vec2 uRes;
   uniform vec2 uMouse;   // 0..1, eased
   uniform float uHover;  // 0..1 pointer presence
+  uniform vec3 uGround;
+  uniform vec3 uFog;
+  uniform vec3 uPool;
 
-  // hash / value noise
   float hash(vec2 p) {
     p = fract(p * vec2(123.34, 456.21));
     p += dot(p, p + 45.32);
     return fract(p.x * p.y);
   }
   float noise(vec2 p) {
-    vec2 i = floor(p);
-    vec2 f = fract(p);
+    vec2 i = floor(p); vec2 f = fract(p);
     vec2 u = f * f * (3.0 - 2.0 * f);
     float a = hash(i);
     float b = hash(i + vec2(1.0, 0.0));
@@ -40,50 +39,43 @@ const FRAG = /* glsl */ `
     return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
   }
   float fbm(vec2 p) {
-    float v = 0.0;
-    float amp = 0.5;
-    for (int i = 0; i < 5; i++) {
-      v += amp * noise(p);
-      p *= 2.02;
-      amp *= 0.5;
-    }
+    float v = 0.0; float amp = 0.5;
+    for (int i = 0; i < 5; i++) { v += amp * noise(p); p *= 2.02; amp *= 0.5; }
     return v;
   }
 
   void main() {
     vec2 uv = gl_FragCoord.xy / uRes.xy;
-    vec2 p = uv;
-    p.x *= uRes.x / uRes.y;
+    vec2 p = uv; p.x *= uRes.x / uRes.y;
 
-    float t = uTime * 0.04;
-    // domain warp for slow drifting "fog"
+    float t = uTime * 0.035;
     vec2 q = vec2(fbm(p * 1.6 + t), fbm(p * 1.6 - t + 4.0));
     float f = fbm(p * 2.2 + q * 1.4 + t * 0.5);
 
-    // base: blue-ink near black, faintly lit by the fog
-    vec3 ground = vec3(0.043, 0.047, 0.071);
-    vec3 fog = vec3(0.09, 0.10, 0.15);
-    vec3 col = mix(ground, fog, smoothstep(0.2, 0.9, f) * 0.6);
+    vec3 col = mix(uGround, uFog, smoothstep(0.2, 0.9, f) * 0.7);
 
-    // sodium-amber pool around the pointer
-    vec2 m = uMouse;
-    m.x *= uRes.x / uRes.y;
+    vec2 m = uMouse; m.x *= uRes.x / uRes.y;
     float d = distance(p, m);
-    float glow = smoothstep(0.55, 0.0, d) * uHover;
-    vec3 amber = vec3(0.90, 0.63, 0.32);
-    col += amber * glow * (0.35 + 0.25 * f);
+    float pool = smoothstep(0.6, 0.0, d) * uHover;
+    col = mix(col, uPool, pool * (0.5 + 0.3 * f));
 
-    // vignette so edges fall into darkness
-    float vig = smoothstep(1.15, 0.35, distance(uv, vec2(0.5)));
-    col *= vig;
+    float vig = smoothstep(1.2, 0.35, distance(uv, vec2(0.5)));
+    col = mix(uGround, col, 0.25 + 0.75 * vig);
 
-    // subtle film grain to kill banding
-    float g = hash(gl_FragCoord.xy + uTime) * 0.03 - 0.015;
+    float g = hash(gl_FragCoord.xy + uTime) * 0.025 - 0.0125;
     col += g;
 
     gl_FragColor = vec4(col, 1.0);
   }
 `;
+
+// Palette per theme. Warm, low-chroma. Dark pools light; light pools shadow.
+function palette() {
+  const dark = document.documentElement.getAttribute("data-theme") !== "light";
+  return dark
+    ? { ground: "#0f0e0c", fog: "#1b1813", pool: "#5b5140" }
+    : { ground: "#f3efe6", fog: "#e7e0d2", pool: "#cfc6b4" };
+}
 
 export default function ShaderField() {
   const hostRef = useRef<HTMLDivElement>(null);
@@ -97,13 +89,12 @@ export default function ShaderField() {
       dpr: Math.min(window.devicePixelRatio || 1, 1.75),
     });
     const gl = renderer.gl;
-    gl.clearColor(0.043, 0.047, 0.071, 1);
     host.appendChild(gl.canvas);
     gl.canvas.style.width = "100%";
     gl.canvas.style.height = "100%";
     gl.canvas.style.display = "block";
 
-    const geometry = new Triangle(gl);
+    const pal = palette();
     const program = new Program(gl, {
       vertex: VERT,
       fragment: FRAG,
@@ -112,9 +103,24 @@ export default function ShaderField() {
         uRes: { value: new Vec2(1, 1) },
         uMouse: { value: new Vec2(0.5, 0.55) },
         uHover: { value: 0 },
+        uGround: { value: new Color(pal.ground) },
+        uFog: { value: new Color(pal.fog) },
+        uPool: { value: new Color(pal.pool) },
       },
     });
-    const mesh = new Mesh(gl, { geometry, program });
+    const mesh = new Mesh(gl, { geometry: new Triangle(gl), program });
+
+    const applyPalette = () => {
+      const p = palette();
+      program.uniforms.uGround.value = new Color(p.ground);
+      program.uniforms.uFog.value = new Color(p.fog);
+      program.uniforms.uPool.value = new Color(p.pool);
+    };
+    const mo = new MutationObserver(applyPalette);
+    mo.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
 
     const resize = () => {
       const { clientWidth: w, clientHeight: h } = host;
@@ -125,7 +131,6 @@ export default function ShaderField() {
     const ro = new ResizeObserver(resize);
     ro.observe(host);
 
-    // eased pointer follow
     const target = new Vec2(0.5, 0.55);
     const current = new Vec2(0.5, 0.55);
     let hover = 0;
@@ -136,8 +141,6 @@ export default function ShaderField() {
       target.set((e.clientX - r.left) / r.width, 1 - (e.clientY - r.top) / r.height);
       hoverTarget = 1;
     };
-    // Fade the pool out only when the pointer truly leaves the document, not on
-    // every element boundary (pointerout bubbles) — that would flicker the glow.
     const onLeave = () => (hoverTarget = 0);
     window.addEventListener("pointermove", onMove, { passive: true });
     document.addEventListener("pointerleave", onLeave);
@@ -158,7 +161,6 @@ export default function ShaderField() {
     };
     raf = requestAnimationFrame(loop);
 
-    // pause when the hero scrolls out of view
     const io = new IntersectionObserver(
       ([entry]) => {
         const wasRunning = running;
@@ -172,6 +174,7 @@ export default function ShaderField() {
     return () => {
       running = false;
       cancelAnimationFrame(raf);
+      mo.disconnect();
       ro.disconnect();
       io.disconnect();
       window.removeEventListener("pointermove", onMove);

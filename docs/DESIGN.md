@@ -15,29 +15,32 @@ The medium is the proof: every interaction is a live sample of the engineer's ha
 
 ---
 
-## 2. Color tokens
+## 2. Color tokens — warm monochrome (light + dark)
 
-Blue-ink near-black ground, cool off-white text, a single warm **sodium-amber** signal (warm light in a cool dark — the "lamp in fog" of the enigma). Semantic colors are separate from the accent.
+**Pure monochrome**, warm-biased: warm near-black + warm cream + warm greys. **No chromatic accent** — emphasis is the italic Fraunces *receding* to muted, plus black/cream contrast and underlines. Dark is the default world; light is a true second theme (toggle persists to `localStorage`, set pre-paint by an inline script; `data-theme` on `<html>`).
 
-### Dark (primary identity)
+Token names (Tailwind v4 `--color-*`) are stable across themes; only values swap.
+
+### Dark (default)
 | Token | Value | Use |
 |---|---|---|
-| `--ground` | `#0B0C12` | page background (blue-biased near-black) |
-| `--surface` | `#101219` | raised panels / cards |
-| `--surface-2` | `#161923` | inset / secondary panels |
-| `--line` | `rgba(233,233,241,0.09)` | hairlines |
-| `--line-strong` | `rgba(233,233,241,0.16)` | emphasized dividers |
-| `--text` | `#E9E9F1` | primary text (cool off-white) |
-| `--muted` | `#9A9AAE` | secondary text (grey-lavender) |
-| `--faint` | `#63647A` | labels, meta |
-| `--accent` | `#E6A251` | THE signal — one accent only |
-| `--accent-soft` | `rgba(230,162,81,0.13)` | accent washes |
-| `--hazard` | `#C96B5E` | semantic warning only, never decorative |
+| `--color-ground` | `#0F0E0C` | warm near-black background |
+| `--color-surface` | `#161410` | raised panels |
+| `--color-surface-2` | `#1E1B15` | inset panels |
+| `--color-line` | `rgba(240,236,228,0.10)` | hairlines |
+| `--color-line-strong` | `rgba(240,236,228,0.20)` | emphasized dividers |
+| `--color-ink` | `#F2EEE4` | primary text (warm cream) |
+| `--color-muted` | `#A69F92` | secondary text (warm grey) |
+| `--color-faint` | `#6B655A` | labels, meta |
+| `--color-accent` | `#F2EEE4` | intentionally = ink (monochrome); full-strength marks only |
+| `--color-accent-soft` | `rgba(240,236,228,0.06)` | subtle ink wash (row hover) |
 
-### Light ("daylight blueprint" — deliberate, not an inversion)
-`--ground #EBEDF2` · `--surface #FFFFFF` · `--surface-2 #F4F6FA` · `--text #15161E` · `--muted #52566A` · `--faint #888CA0` · `--accent #A75E17` (deepened for contrast on light).
+### Light
+`--color-ground #F3EFE6` (warm cream) · `--color-surface #FBF9F3` · `--color-surface-2 #EAE3D6` · `--color-ink #1B1813` · `--color-muted #5F594E` · `--color-faint #948D7F` · `--color-accent #1B1813` · lines at `rgba(28,24,18,·)`.
 
-**Rule:** loudness comes from motion and type, never from adding colors.
+**Rule:** loudness comes from motion, type, and contrast — never from adding color.
+
+**Icons:** Hugeicons (`@hugeicons/react` + `@hugeicons/core-free-icons`), rendered via `<HugeiconsIcon>` at `strokeWidth` 1.5–1.75, `currentColor`. No unicode glyphs standing in for icons.
 
 ---
 
