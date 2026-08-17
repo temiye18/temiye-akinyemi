@@ -2,11 +2,17 @@ import type { Metadata } from "next";
 import { Link } from "next-view-transitions";
 import { notFound } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowLeft01Icon, ArrowRight01Icon } from "@hugeicons/core-free-icons";
+import {
+  ArrowLeft01Icon,
+  ArrowRight01Icon,
+  ArrowUpRight01Icon,
+  Github01Icon,
+} from "@hugeicons/core-free-icons";
 import { projects, getProject } from "@/lib/content";
 import MaskText from "@/components/motion/MaskText";
 import Reveal from "@/components/motion/Reveal";
-import ArtifactCanvas from "@/components/artifact/ArtifactCanvas";
+import LivePreview from "@/components/ui/LivePreview";
+import PlaceholderGraphic from "@/components/ui/PlaceholderGraphic";
 
 export function generateStaticParams() {
   return projects.map((p) => ({ slug: p.slug }));
@@ -92,19 +98,61 @@ export default async function CasePage({
               </div>
             ))}
           </dl>
+
+          {(project.url || project.github) && (
+            <Reveal delay={0.1} className="mt-10">
+              <div className="flex flex-wrap gap-3">
+                {project.url && (
+                  <a
+                    href={project.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-cursor-target
+                    className="group inline-flex items-center gap-2 rounded-full border border-[var(--color-line-strong)] px-5 py-2.5 text-sm text-[var(--color-ink)] transition-colors duration-300 hover:bg-[var(--color-ink)] hover:text-[var(--color-ground)]"
+                  >
+                    Live site
+                    <HugeiconsIcon
+                      icon={ArrowUpRight01Icon}
+                      size={15}
+                      strokeWidth={1.7}
+                      className="transition-transform duration-300 ease-[var(--ease-out-expo)] group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                    />
+                  </a>
+                )}
+                {project.github && (
+                  <a
+                    href={project.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-cursor-target
+                    className="group inline-flex items-center gap-2 rounded-full border border-[var(--color-line)] px-5 py-2.5 text-sm text-[var(--color-muted)] transition-colors duration-300 hover:border-[var(--color-line-strong)] hover:text-[var(--color-ink)]"
+                  >
+                    <HugeiconsIcon
+                      icon={Github01Icon}
+                      size={16}
+                      strokeWidth={1.6}
+                    />
+                    Source
+                  </a>
+                )}
+              </div>
+            </Reveal>
+          )}
         </header>
 
-        {/* The one 3D Artifact — signature project only */}
-        {project.signature && (
-          <Reveal className="mt-12">
-            <figure className="relative aspect-[16/10] w-full overflow-hidden border border-[var(--color-line)] bg-[var(--color-surface)]">
-              <ArtifactCanvas />
-              <figcaption className="eyebrow pointer-events-none absolute bottom-4 left-4 text-[var(--color-faint)]">
-                Drag to turn · WebGL
-              </figcaption>
-            </figure>
-          </Reveal>
-        )}
+        {/* Live landing-page preview when there's a URL; otherwise a bespoke
+            graphic for projects with no public site. */}
+        <Reveal className="mt-12">
+          {project.url ? (
+            <LivePreview
+              url={project.url}
+              image={project.preview}
+              title={project.title}
+            />
+          ) : (
+            <PlaceholderGraphic caption={project.stack.join(" · ")} />
+          )}
+        </Reveal>
 
         <div className="mt-16 grid gap-12 lg:grid-cols-[1.5fr_1fr] lg:gap-20">
           <div className="flex flex-col gap-12">

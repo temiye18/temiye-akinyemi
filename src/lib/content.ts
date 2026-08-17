@@ -39,12 +39,20 @@ export type Project = {
   approach: string;
   result: string;
   highlights: string[];
+  // live site link — when set, the case page shows a Vercel-style landing preview
+  url?: string;
+  // optional self-hosted screenshot (in /public); overrides the live capture
+  preview?: string;
+  // public source repository
+  github?: string;
 };
 
 export const projects: Project[] = [
   {
     index: "01",
     slug: "resume-by-temi",
+    url: "https://resume-by-temi.vercel.app/",
+    github: "https://github.com/temiye18/resume-by-temi",
     title: "Résumé by Temi",
     discipline: "AI resume builder",
     year: "2025",
@@ -70,6 +78,7 @@ export const projects: Project[] = [
   {
     index: "02",
     slug: "foodcs",
+    url: "https://www.foodcs.co.uk/",
     title: "FoodCS",
     discipline: "AI marketplace platform",
     year: "2025",
@@ -95,6 +104,8 @@ export const projects: Project[] = [
   {
     index: "03",
     slug: "wifi-health-monitor",
+    url: "https://wifi-health-monitor-website.vercel.app/",
+    github: "https://github.com/temiye18/wifi-health-monitor",
     title: "WiFi Health Monitor",
     discipline: "Desktop monitoring app",
     year: "2024",
@@ -120,6 +131,7 @@ export const projects: Project[] = [
   {
     index: "04",
     slug: "sharesafe",
+    github: "https://github.com/G2-FINAL-YEAR-PROJECT/ShareSafe",
     title: "ShareSafe",
     discipline: "Emergency response app",
     year: "2024",
