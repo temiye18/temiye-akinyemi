@@ -1,72 +1,70 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { Link } from "next-view-transitions";
 import Image from "next/image";
 import { useReducedMotion } from "motion/react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowUpRight01Icon } from "@hugeicons/core-free-icons";
-import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
 import { shotUrl } from "@/lib/preview";
 import { projects } from "@/lib/content";
-import { useThreeD } from "@/components/providers/ThreeDMode";
 import SignalGraphic from "@/components/ui/SignalGraphic";
 
 export default function SelectedWork() {
   const reduce = useReducedMotion();
-  const { enabled: threeD } = useThreeD();
-  // Only reduced motion drops the pinned coverflow. 3D keeps it: we just switch
-  // the pin strategy (see pinType below) so it survives the transformed plane.
+  // Only reduced motion drops the pinned coverflow; the pin itself is mode
+  // agnostic (transform-pinning), so 2D and 3D share it without a rebuild.
   const plain = reduce;
   const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (plain) return;
-    const track = trackRef.current;
-    const section = sectionRef.current;
-    if (!track || !section) return;
+  // Build synchronously in a layout effect (via useGSAP). Because this section
+  // is an earlier sibling than the manifesto, this runs before ScrollReveal's
+  // own layout effect, so the pin-spacer already exists when ScrollReveal
+  // measures its scroll range. useGSAP reverts the whole context on cleanup,
+  // which kills the trigger, reverts the pin (spacer + inline styles) and clears
+  // the card transforms.
+  useGSAP(
+    () => {
+      if (plain) return;
+      const track = trackRef.current;
+      const section = sectionRef.current;
+      if (!track || !section) return;
 
-    const cards = gsap.utils.toArray<HTMLElement>("[data-card]", track);
-    const clampDist = gsap.utils.clamp(-1.25, 1.25);
-    const distance = () => track.scrollWidth - window.innerWidth;
+      const cards = gsap.utils.toArray<HTMLElement>("[data-card]", track);
+      const clampDist = gsap.utils.clamp(-1.25, 1.25);
+      const distance = () => track.scrollWidth - window.innerWidth;
 
-    // Coverflow depth — each card swings on Y, recedes in Z and dims by how far
-    // its centre sits from the middle of the screen; the centred card faces us
-    // flat and full. The media inside drifts the other way. Position is read
-    // from layout (offsetLeft + the track's x), never from getBoundingClientRect,
-    // so the 3D transforms we write can't feed back into the measurement.
-    const applyDepth = () => {
-      const mid = window.innerWidth / 2;
-      const base = section.getBoundingClientRect().left;
-      const trackX = parseFloat(String(gsap.getProperty(track, "x"))) || 0;
-      for (const card of cards) {
-        const cardCenter =
-          base + trackX + card.offsetLeft + card.offsetWidth / 2;
-        const off = clampDist((cardCenter - mid) / mid);
-        const mag = Math.abs(off);
-        gsap.set(card, {
-          rotationY: off * -30,
-          z: -mag * 320,
-          scale: 1 - mag * 0.14,
-          opacity: 1 - mag * 0.4,
-          // stack the centred card above its neighbours
-          zIndex: Math.round((1 - mag) * 100),
-        });
-        const media = card.querySelector<HTMLElement>("[data-media]");
-        if (media) gsap.set(media, { xPercent: off * -12, scale: 1.12 });
-      }
-    };
+      // Coverflow depth — each card swings on Y, recedes in Z and dims by how far
+      // its centre sits from the middle of the screen; the centred card faces us
+      // flat and full. The media inside drifts the other way. Position is read
+      // from layout (offsetLeft + the track's x), never from
+      // getBoundingClientRect, so the 3D transforms we write can't feed back.
+      const applyDepth = () => {
+        const mid = window.innerWidth / 2;
+        const base = section.getBoundingClientRect().left;
+        const trackX = parseFloat(String(gsap.getProperty(track, "x"))) || 0;
+        for (const card of cards) {
+          const cardCenter =
+            base + trackX + card.offsetLeft + card.offsetWidth / 2;
+          const off = clampDist((cardCenter - mid) / mid);
+          const mag = Math.abs(off);
+          gsap.set(card, {
+            rotationY: off * -30,
+            z: -mag * 320,
+            scale: 1 - mag * 0.14,
+            opacity: 1 - mag * 0.4,
+            // stack the centred card above its neighbours
+            zIndex: Math.round((1 - mag) * 100),
+          });
+          const media = card.querySelector<HTMLElement>("[data-media]");
+          if (media) gsap.set(media, { xPercent: off * -12, scale: 1.12 });
+        }
+      };
 
-    let tween: gsap.core.Tween | null = null;
-
-    // Build the pin on the NEXT frame, not synchronously. SpacePlane toggles the
-    // page's 3D transform in its own effect (which has already run by the time
-    // this rAF fires), so the pin always measures against a settled ancestor —
-    // no stale-transform race, no blank section when switching modes.
-    const raf = requestAnimationFrame(() => {
-      tween = gsap.to(track, {
+      gsap.to(track, {
         x: () => -distance(),
         ease: "none",
         scrollTrigger: {
@@ -74,12 +72,11 @@ export default function SelectedWork() {
           start: "top top",
           end: () => `+=${distance()}`,
           pin: true,
-          // 2D: native fixed-pinning (fastest, smoothest). 3D: the page is a
-          // transformed plane, and a `position: fixed` pin would resolve against
-          // that plane instead of the viewport. Transform-pinning holds the pin
-          // by translating the element, so it works inside the transformed
-          // ancestor. Same coverflow, correct pin in both worlds.
-          pinType: threeD ? "transform" : "fixed",
+          // Transform-pinning (not fixed) in BOTH modes. It holds the pin by
+          // translating the element, which (a) survives the 3D plane's transform
+          // ancestor and (b) means toggling 2D<->3D never has to rebuild the pin,
+          // so there's no spacer churn, no scroll jump, no blank on switch.
+          pinType: "transform",
           scrub: 1,
           invalidateOnRefresh: true,
           onRefresh: applyDepth,
@@ -90,26 +87,14 @@ export default function SelectedWork() {
           },
         },
       });
-      ScrollTrigger.refresh();
-      applyDepth();
-    });
 
-    return () => {
-      cancelAnimationFrame(raf);
-      // Revert the pin (removes the pin-spacer + pinned inline styles) and kill
-      // the scrub tween, then wipe the transforms we set on the cards so nothing
-      // lingers into the next mode. A final refresh re-measures sibling triggers
-      // now that the pin-spacer is gone.
-      tween?.scrollTrigger?.kill(true);
-      tween?.kill();
-      cards.forEach((card) => {
-        gsap.set(card, { clearProps: "transform,opacity,zIndex" });
-        const media = card.querySelector<HTMLElement>("[data-media]");
-        if (media) gsap.set(media, { clearProps: "transform" });
-      });
+      applyDepth();
+      // Rebuilding the pin changes the page height; refresh so sibling triggers
+      // (the manifesto word-reveal) recompute against the new layout on toggle.
       ScrollTrigger.refresh();
-    };
-  }, [plain, threeD]);
+    },
+    { scope: sectionRef, dependencies: [plain] },
+  );
 
   return (
     <section
