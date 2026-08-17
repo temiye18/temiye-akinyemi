@@ -51,6 +51,23 @@ const LOGOS: Record<string, { path: string }> = {
   Stripe: siStripe,
 };
 
+// hover color per mark. Brands whose identity is black/white keep the theme ink
+// so they stay visible on both themes; the rest reveal their real brand hex.
+const BRAND: Record<string, string> = {
+  TypeScript: "#3178C6",
+  React: "#61DAFB",
+  "Next.js": "var(--color-ink)",
+  "Node.js": "#5FA04E",
+  PostgreSQL: "#4169E1",
+  Prisma: "var(--color-ink)",
+  Redis: "#FF4438",
+  "Socket.IO": "var(--color-ink)",
+  Docker: "#2496ED",
+  "Google Gemini": "#8E75B2",
+  "Tailwind CSS": "#06B6D4",
+  Stripe: "#635BFF",
+};
+
 function ToolMark({ path }: { path: string }) {
   return (
     <svg
@@ -124,10 +141,15 @@ export default function Capabilities() {
                 return (
                   <li
                     key={name}
-                    className="group flex items-center gap-3.5 bg-[var(--color-surface)] px-6 py-6 text-[var(--color-faint)] transition-colors duration-300 hover:text-[var(--color-ink)]"
+                    style={
+                      {
+                        "--brand": BRAND[name] ?? "var(--color-ink)",
+                      } as React.CSSProperties
+                    }
+                    className="group flex items-center gap-3.5 bg-[var(--color-surface)] px-6 py-6"
                   >
                     {logo && (
-                      <span className="transition-transform duration-300 ease-[var(--ease-out-expo)] group-hover:-translate-y-0.5">
+                      <span className="text-[var(--color-faint)] transition-[color,transform] duration-300 ease-[var(--ease-out-expo)] group-hover:-translate-y-0.5 group-hover:[color:var(--brand)]">
                         <ToolMark path={logo.path} />
                       </span>
                     )}
