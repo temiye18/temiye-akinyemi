@@ -163,40 +163,33 @@ export const about = {
   ],
 };
 
-// Capabilities: real strengths, each with a proficiency read (0 to 100) and the
-// concrete toolkit behind them.
+// Capabilities: real strengths and the concrete toolkit behind them.
 export const capabilities = {
   intro: "What I bring to the work.",
   disciplines: [
     {
       title: "Frontend engineering",
       body: "React, Next.js, and TypeScript with reusable design systems that keep interfaces consistent and quick to build on.",
-      level: 96,
     },
     {
       title: "Fullstack and APIs",
       body: "Node.js and Express services over PostgreSQL, designed for reliable, well-structured data and clean API contracts.",
-      level: 90,
     },
     {
       title: "AI integration",
       body: "LLMs and vector search in real products: semantic matching, RAG, and natural-language features with Google Gemini and pgvector.",
-      level: 88,
     },
     {
       title: "Real-time systems",
       body: "Live messaging, presence, and background jobs with Socket.IO, Redis, and BullMQ that stay responsive under load.",
-      level: 86,
     },
     {
       title: "Payments and infrastructure",
       body: "Escrow and payouts with Stripe Connect, containerized and shipped with Docker, CI/CD, and cloud hosting.",
-      level: 84,
     },
     {
       title: "Performance and UX",
       body: "Faster loads, smoother interactions, and accessible, responsive interfaces that people actually enjoy using.",
-      level: 92,
     },
   ],
   toolkit: [

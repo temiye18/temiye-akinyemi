@@ -7,9 +7,23 @@ import {
   CreditCardIcon,
   DashboardSpeed01Icon,
 } from "@hugeicons/core-free-icons";
+import {
+  siTypescript,
+  siReact,
+  siNextdotjs,
+  siNodedotjs,
+  siPostgresql,
+  siPrisma,
+  siRedis,
+  siSocketdotio,
+  siDocker,
+  siGooglegemini,
+  siTailwindcss,
+  siStripe,
+} from "simple-icons";
 import MaskText from "@/components/motion/MaskText";
 import Reveal from "@/components/motion/Reveal";
-import Meter from "@/components/motion/Meter";
+import DrawLine from "@/components/motion/DrawLine";
 import { capabilities } from "@/lib/content";
 
 const ICONS = [
@@ -21,6 +35,37 @@ const ICONS = [
   DashboardSpeed01Icon,
 ];
 
+// brand marks for the toolkit, keyed by the tool name in content
+const LOGOS: Record<string, { path: string }> = {
+  TypeScript: siTypescript,
+  React: siReact,
+  "Next.js": siNextdotjs,
+  "Node.js": siNodedotjs,
+  PostgreSQL: siPostgresql,
+  Prisma: siPrisma,
+  Redis: siRedis,
+  "Socket.IO": siSocketdotio,
+  Docker: siDocker,
+  "Google Gemini": siGooglegemini,
+  "Tailwind CSS": siTailwindcss,
+  Stripe: siStripe,
+};
+
+function ToolMark({ path }: { path: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="22"
+      height="22"
+      fill="currentColor"
+      aria-hidden
+      className="shrink-0"
+    >
+      <path d={path} />
+    </svg>
+  );
+}
+
 export default function Capabilities() {
   return (
     <section
@@ -28,69 +73,71 @@ export default function Capabilities() {
       className="border-t border-[var(--color-line)] px-6 py-28 sm:px-10 lg:px-16 lg:py-40"
     >
       <div className="mx-auto w-full max-w-[1360px]">
-        <div className="mb-16 flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
-          <div>
-            <Reveal className="mb-6" y={12}>
-              <p className="eyebrow">Capabilities</p>
-            </Reveal>
-            <MaskText
-              as="h2"
-              text={capabilities.intro}
-              className="max-w-[16ch] text-[clamp(1.75rem,4vw,3.25rem)] font-medium leading-[1.1] tracking-tight"
-            />
-          </div>
+        <div className="mb-20 max-w-[24ch]">
+          <Reveal className="mb-6" y={12}>
+            <p className="eyebrow">Capabilities</p>
+          </Reveal>
+          <MaskText
+            as="h2"
+            text={capabilities.intro}
+            className="text-[clamp(1.75rem,4vw,3.25rem)] font-medium leading-[1.1] tracking-tight"
+          />
         </div>
 
-        <div className="grid gap-x-20 gap-y-16 lg:grid-cols-[1.7fr_1fr]">
-          {/* metered disciplines */}
-          <div className="flex flex-col gap-11">
-            {capabilities.disciplines.map((d, i) => {
-              const Icon = ICONS[i % ICONS.length];
-              return (
-                <Reveal key={d.title} delay={(i % 2) * 0.05}>
-                  <article>
-                    <div className="mb-3 flex items-center justify-between gap-4">
-                      <h3 className="flex items-center gap-3 text-lg font-medium tracking-tight">
-                        <HugeiconsIcon
-                          icon={Icon}
-                          size={19}
-                          strokeWidth={1.5}
-                          className="text-[var(--color-muted)]"
-                        />
-                        {d.title}
-                      </h3>
-                      <span className="eyebrow [font-variant-numeric:tabular-nums]">
-                        {d.level}
-                      </span>
-                    </div>
-                    <Meter level={d.level} />
-                    <p className="mt-4 max-w-[52ch] text-sm leading-relaxed text-[var(--color-muted)]">
-                      {d.body}
-                    </p>
-                  </article>
-                </Reveal>
-              );
-            })}
-          </div>
+        {/* disciplines — no scores, no bars; a hairline draws in on scroll */}
+        <div className="grid gap-x-16 gap-y-14 md:grid-cols-2">
+          {capabilities.disciplines.map((d, i) => {
+            const Icon = ICONS[i % ICONS.length];
+            return (
+              <Reveal key={d.title} delay={(i % 2) * 0.05}>
+                <article>
+                  <DrawLine className="mb-6" />
+                  <div className="flex items-center gap-3">
+                    <HugeiconsIcon
+                      icon={Icon}
+                      size={20}
+                      strokeWidth={1.5}
+                      className="text-[var(--color-muted)]"
+                    />
+                    <h3 className="text-lg font-medium tracking-tight">
+                      {d.title}
+                    </h3>
+                  </div>
+                  <p className="mt-3 max-w-[46ch] text-sm leading-relaxed text-[var(--color-muted)]">
+                    {d.body}
+                  </p>
+                </article>
+              </Reveal>
+            );
+          })}
+        </div>
 
-          {/* toolkit */}
-          <Reveal delay={0.1}>
-            <div className="lg:sticky lg:top-28">
-              <p className="eyebrow mb-6">Toolkit</p>
-              <ul className="flex flex-col">
-                {capabilities.toolkit.map((tool, i) => (
+        {/* toolkit — the stack, as brand marks */}
+        <div className="mt-24">
+          <Reveal className="mb-6">
+            <p className="eyebrow">Toolkit</p>
+          </Reveal>
+          <Reveal delay={0.05}>
+            <ul className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-[var(--color-line)] bg-[var(--color-line)] sm:grid-cols-3 lg:grid-cols-4">
+              {capabilities.toolkit.map((name) => {
+                const logo = LOGOS[name];
+                return (
                   <li
-                    key={tool}
-                    className="flex items-baseline justify-between gap-4 border-t border-[var(--color-line)] py-3.5 last:border-b"
+                    key={name}
+                    className="group flex items-center gap-3.5 bg-[var(--color-surface)] px-6 py-6 text-[var(--color-faint)] transition-colors duration-300 hover:text-[var(--color-ink)]"
                   >
-                    <span className="text-[var(--color-ink)]">{tool}</span>
-                    <span className="eyebrow [font-variant-numeric:tabular-nums]">
-                      {(i + 1).toString().padStart(2, "0")}
+                    {logo && (
+                      <span className="transition-transform duration-300 ease-[var(--ease-out-expo)] group-hover:-translate-y-0.5">
+                        <ToolMark path={logo.path} />
+                      </span>
+                    )}
+                    <span className="text-sm text-[var(--color-ink)]">
+                      {name}
                     </span>
                   </li>
-                ))}
-              </ul>
-            </div>
+                );
+              })}
+            </ul>
           </Reveal>
         </div>
       </div>

@@ -1,11 +1,11 @@
-import MaskText from "@/components/motion/MaskText";
 import Reveal from "@/components/motion/Reveal";
 import LocalTime from "@/components/ui/LocalTime";
 import Portrait from "@/components/ui/Portrait";
 import { about, site } from "@/lib/content";
 
-const CARD =
-  "rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)]";
+// split the statement so a key phrase carries the signature italic emphasis
+const EMPHASIS = "looks and feels";
+const [stmtBefore, stmtAfter] = about.statement.split(EMPHASIS);
 
 export default function About() {
   return (
@@ -18,71 +18,52 @@ export default function About() {
           <p className="eyebrow">About</p>
         </Reveal>
 
-        {/* bento "at a glance" — mixed sizes break the full-width rhythm */}
-        <div className="grid gap-4 md:grid-cols-3 md:grid-rows-[auto_1fr]">
-          {/* portrait — spans both rows */}
-          <Reveal className="md:row-span-2" y={12}>
+        <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
+          {/* portrait — the visual anchor, stretches to the column height */}
+          <Reveal y={12} className="lg:h-full">
             <Portrait />
           </Reveal>
 
-          {/* statement — wide */}
-          <Reveal className="md:col-span-2">
-            <div className={`${CARD} h-full p-8`}>
-              <MaskText
-                as="h2"
-                text={about.statement}
-                className="text-[clamp(1.35rem,2.6vw,2.1rem)] font-medium leading-[1.2] tracking-tight"
-                stagger={0.02}
-              />
-            </div>
-          </Reveal>
+          {/* the profile, dense and always visible */}
+          <div className="flex flex-col gap-12">
+            <Reveal>
+              <h2 className="text-[clamp(1.7rem,3.1vw,2.7rem)] font-medium leading-[1.24] tracking-tight text-[var(--color-ink)]">
+                {stmtBefore}
+                <em className="font-normal italic text-[var(--color-muted)]">
+                  {EMPHASIS}
+                </em>
+                {stmtAfter}
+              </h2>
+            </Reveal>
 
-          {/* live status */}
-          <Reveal>
-            <div
-              className={`${CARD} flex h-full flex-col justify-between gap-6 p-7`}
-            >
-              <p className="eyebrow">Status</p>
-              <div>
-                <p className="flex items-center gap-2.5 text-sm text-[var(--color-ink)]">
-                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-muted)]" />
-                  {site.status}
-                </p>
-                <p className="mt-2 text-sm text-[var(--color-faint)]">
-                  <LocalTime />
-                </p>
-              </div>
+            <div className="grid gap-8 sm:grid-cols-2 sm:gap-12">
+              {about.paragraphs.map((para, i) => (
+                <Reveal key={i} delay={0.1 + i * 0.08}>
+                  <p className="text-[15px] leading-relaxed text-[var(--color-muted)]">
+                    {para}
+                  </p>
+                </Reveal>
+              ))}
             </div>
-          </Reveal>
 
-          {/* quick facts */}
-          <Reveal delay={0.08}>
-            <div className={`${CARD} h-full p-7`}>
-              <p className="eyebrow mb-6">At a glance</p>
-              <dl className="flex flex-col gap-4">
-                {about.facts.slice(0, 3).map((f) => (
-                  <div
-                    key={f.k}
-                    className="flex items-baseline justify-between gap-4 border-b border-[var(--color-line)] pb-3 last:border-none last:pb-0"
-                  >
+            <Reveal delay={0.15} className="mt-auto">
+              <dl className="grid grid-cols-2 gap-x-8 gap-y-7 border-t border-[var(--color-line)] pt-8 sm:grid-cols-4">
+                {about.facts.map((f) => (
+                  <div key={f.k} className="flex flex-col gap-2">
                     <dt className="eyebrow">{f.k}</dt>
-                    <dd className="text-right text-sm text-[var(--color-ink)]">
-                      {f.v}
-                    </dd>
+                    <dd className="text-[var(--color-ink)]">{f.v}</dd>
                   </div>
                 ))}
               </dl>
-            </div>
-          </Reveal>
-        </div>
 
-        {/* the fuller narrative, below the bento */}
-        <div className="mt-16 grid gap-8 border-t border-[var(--color-line)] pt-12 lg:grid-cols-2 lg:gap-20">
-          {about.paragraphs.map((para, i) => (
-            <Reveal key={i} delay={i * 0.1}>
-              <p className="text-[var(--color-muted)]">{para}</p>
+              <p className="mt-7 flex flex-wrap items-center gap-2.5 text-sm text-[var(--color-muted)]">
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-muted)]" />
+                {site.status}
+                <span className="text-[var(--color-faint)]">·</span>
+                <LocalTime />
+              </p>
             </Reveal>
-          ))}
+          </div>
         </div>
       </div>
     </section>

@@ -1,122 +1,58 @@
-# Portfolio — Design System & Build Plan
+# Design
 
-**Owner:** Temiye Akinyemi — Frontend Engineer (4+ yrs), immersive/interactive interfaces
-**Direction:** `OBSIDIAN + KINETIC` hybrid (see the [design dossier](https://claude.ai/code/artifact/f4a4dff7-241b-455e-84c4-9bdb79ba8dca))
-**Foundation:** Next.js 16 · React 19 · Tailwind v4 · TypeScript
-**Content mode:** design-first — realistic placeholders now, real work swapped in later.
+Visual system for the Temiye Akinyemi portfolio. See `PRODUCT.md` for strategy.
 
----
+## Overview
 
-## 1. The concept in one sentence
+A warm-monochrome, editorial portfolio with an enigmatic, "withhold then reward" personality. One signature moment per surface; loudness comes from motion, type, and contrast, not color. Dark is the default world; light is a true second theme. Foundation: Next.js 16 (App Router, React 19), Tailwind CSS v4, TypeScript.
 
-> The site withholds, then rewards — near-darkness that reveals itself to your cursor (OBSIDIAN), a body that thinks in kinetic, velocity-reactive type (KINETIC), and exactly one touchable 3D artifact held in reserve for a single project page.
+## Theme
 
-The medium is the proof: every interaction is a live sample of the engineer's hand. Spectacle is spent **once, deliberately**.
+Two themes, toggled and remembered (`data-theme` on `<html>`, set pre-paint by an inline script to avoid flash). Dark default. Chosen for a nocturnal, cinematic first impression that the cursor-reactive hero depends on; light is a warm "daylight" counterpart. Tokens are Tailwind v4 `@theme` custom properties; only values swap between themes.
 
----
+## Color
 
-## 2. Color tokens — warm monochrome (light + dark)
+Warm-biased monochrome: warm near-black, warm cream, warm greys. **No chromatic accent** (`--color-accent` is intentionally the ink). Emphasis is the italic Fraunces receding to muted, plus black/cream contrast and underlines. Semantic color (`--color-hazard`) is separate and used only for meaning.
 
-**Pure monochrome**, warm-biased: warm near-black + warm cream + warm greys. **No chromatic accent** — emphasis is the italic Fraunces *receding* to muted, plus black/cream contrast and underlines. Dark is the default world; light is a true second theme (toggle persists to `localStorage`, set pre-paint by an inline script; `data-theme` on `<html>`).
-
-Token names (Tailwind v4 `--color-*`) are stable across themes; only values swap.
-
-### Dark (default)
-| Token | Value | Use |
+| Token | Dark | Light |
 |---|---|---|
-| `--color-ground` | `#0F0E0C` | warm near-black background |
-| `--color-surface` | `#161410` | raised panels |
-| `--color-surface-2` | `#1E1B15` | inset panels |
-| `--color-line` | `rgba(240,236,228,0.10)` | hairlines |
-| `--color-line-strong` | `rgba(240,236,228,0.20)` | emphasized dividers |
-| `--color-ink` | `#F2EEE4` | primary text (warm cream) |
-| `--color-muted` | `#A69F92` | secondary text (warm grey) |
-| `--color-faint` | `#6B655A` | labels, meta |
-| `--color-accent` | `#F2EEE4` | intentionally = ink (monochrome); full-strength marks only |
-| `--color-accent-soft` | `rgba(240,236,228,0.06)` | subtle ink wash (row hover) |
+| `--color-ground` | `#0F0E0C` | `#F3EFE6` |
+| `--color-surface` | `#161410` | `#FBF9F3` |
+| `--color-surface-2` | `#1E1B15` | `#EAE3D6` |
+| `--color-ink` | `#F2EEE4` | `#1B1813` |
+| `--color-muted` | `#A69F92` | `#5B5548` |
+| `--color-faint` | `#857E70` | `#7A7466` |
+| `--color-line` | `rgba(240,236,228,.10)` | `rgba(28,24,18,.12)` |
+| `--color-line-strong` | `rgba(240,236,228,.20)` | `rgba(28,24,18,.22)` |
+| `--color-accent` (= ink) | `#F2EEE4` | `#1B1813` |
 
-### Light
-`--color-ground #F3EFE6` (warm cream) · `--color-surface #FBF9F3` · `--color-surface-2 #EAE3D6` · `--color-ink #1B1813` · `--color-muted #5F594E` · `--color-faint #948D7F` · `--color-accent #1B1813` · lines at `rgba(28,24,18,·)`.
+Contrast targets WCAG AA in both themes.
 
-**Rule:** loudness comes from motion, type, and contrast — never from adding color.
+## Typography
 
-**Icons:** Hugeicons (`@hugeicons/react` + `@hugeicons/core-free-icons`), rendered via `<HugeiconsIcon>` at `strokeWidth` 1.5–1.75, `currentColor`. No unicode glyphs standing in for icons.
+Encodes artist × engineer through contrast. Self-hosted via `next/font`, ≤3 families.
 
----
+- **Display / headings:** Fraunces (variable serif). Editorial, with an italic used as the signature emphasis device (`withhold,` / `software engineer.` / `looks and feels`).
+- **Body / UI:** Geist Sans.
+- **Data / labels:** Geist Mono, for genuine measurement only (telemetry HUD, counters, tabular figures), not as a "technical" costume.
 
-## 3. Typography
+Scale is fluid (`clamp`). Display heading max 7rem; tracking floor about `-0.035em`; headings `text-wrap: balance`. Small labels use the `.eyebrow` utility (sans, uppercase, letter-spaced, muted).
 
-Encodes **artist × engineer** through contrast: an editorial variable **serif** against a technical **mono**, with a neutral sans for reading. All self-hosted via `next/font` (no layout shift, no CDN).
+## Motion
 
-| Role | Face | Why | Notes |
-|---|---|---|---|
-| Display / kinetic | **Fraunces** (variable) | editorial, luxe, `opsz`/`SOFT`/`wght` axes make it ideal for velocity-reactive kinetic type; not the overused Playfair/Space Grotesk | animate `font-variation-settings` |
-| Body / UI | **Geist Sans** | quiet, modern neutral; stays out of the way | |
-| Labels / data / eyebrows | **Geist Mono** | the "signal/technical" voice — uppercase, letter-spaced | `tabular-nums` for figures |
+Shared easing tokens in `@theme`: `--ease-out-expo: cubic-bezier(0.16,1,0.3,1)`, `--ease-in-out-quart: cubic-bezier(0.76,0,0.24,1)`. Libraries: Motion (`motion/react`), GSAP (available), Lenis (smooth scroll wired to anchors), OGL (hero shader), React Three Fiber (one 3D artifact). Signature moments: preloader → hero handoff, the cursor **lens** that wipes the fog off the headline, the 2D/3D **orbiting plane**, and shared-element **View Transitions** between work and case pages. Reveals are opacity/mask on scroll; every effect has a reduced-motion path.
 
-Type scale (fluid, `clamp`): display `clamp(40px, 8vw, 96px)` · h2 `clamp(26px, 4.4vw, 44px)` · lead `20px` · body `17px` · label `11–12px / 0.2em tracking / uppercase`. Headings `text-wrap: balance`; body `text-wrap: pretty`; reading measure ~65–74ch.
+## Components
 
-> Fonts are easy to swap — if Fraunces reads too "luxe," candidates are Instrument Serif (lighter) or Bricolage Grotesque (grotesk kinetic).
+- **Nav:** floating console (contained capsules), a spring indicator that tracks the active section, icons that reveal on active/hover, mobile overlay menu.
+- **Sections:** Hero (shader + lens), Selected Work (stacked rows → case pages), About (portrait + statement + spec), Capabilities (disciplines with draw-in hairlines + toolkit brand-mark grid), Experience (timeline), Contact.
+- **Primitives:** `Reveal`, `MaskText`, `DrawLine`, `Magnetic`, `Cursor`, `Portrait`, `LocalTime`, `TelemetryHUD`, `ThemeToggle`, `Mode2D3DToggle`.
+- **Icons:** Hugeicons for UI, Simple Icons for brand marks (rendered monochrome), authored SVG where needed. No unicode glyphs as icons.
 
----
+## Layout
 
-## 4. Motion tokens (shared by CSS + GSAP/Motion via Tailwind `@theme`)
+Centered content at `max-w-[1360px]`, case pages at `1100px`. Fixed nav (floating, stays flat while content orbits in 3D). Hairlines and generous whitespace over boxed cards; cards used only where they are the best affordance (portrait, toolkit panel). Fully responsive with mobile fallbacks for pointer-only effects.
 
-| Token | Value | Use |
-|---|---|---|
-| `--ease-out-expo` | `cubic-bezier(0.16, 1, 0.3, 1)` | reveals — fast start, long settle (the "senior" curve) |
-| `--ease-in-out-quart` | `cubic-bezier(0.76, 0, 0.24, 1)` | transitions |
-| `--dur-fast` | `0.4s` | micro-interactions |
-| `--dur-base` | `0.8s` | reveals |
-| `--dur-slow` | `1.2s` | scene / hero |
-| stagger | `0.03–0.06s` | grouped reveals |
+## Accessibility
 
-Spring defaults (Motion): `stiffness 260, damping 30` for cursor/magnetic. **Never** linear/default ease.
-
----
-
-## 5. Motion doctrine (non-negotiable)
-
-- **`prefers-reduced-motion`** on everything: disable Lenis, kill parallax/scrub/shader animation, show static posters, keep only opacity fades. `gsap.matchMedia()` is the pattern.
-- **`(hover: hover) and (pointer: fine)`** gates cursor, magnetic, hover-distortion. Full functionality without hover (touch/keyboard).
-- Animate only `transform` / `opacity` / `filter`. Hold 60fps. Protect LCP (hero image `priority`, shaders compile after paint), INP, CLS (`document.fonts.ready` before split-text).
-- Client-only animation libs sit behind tight `"use client"` boundaries kept low in the tree; canvases `dynamic(..., { ssr: false })`.
-
----
-
-## 6. Stack (version-verified, Aug 2026)
-
-| Layer | Tool | Status |
-|---|---|---|
-| Smooth scroll | `lenis` 1.3 (`lenis/react`) | Phase 0 |
-| Choreography | `gsap` 3.13 + ScrollTrigger + SplitText (`@gsap/react` `useGSAP`) | Phase 0 (all free now) |
-| Interaction | `motion` 13 (`motion/react`) | Phase 0 |
-| Route transitions | Next 16 View Transitions (`experimental.viewTransition`) | Phase 4 |
-| Signature 3D | `ogl` (hero shader) · `@react-three/fiber` 9 + `drei` 10 (the one Artifact) | Phase 2 / Phase 4 |
-
-Wire Lenis to GSAP's single ticker (`gsap.ticker.add(t => lenis.raf(t*1000))`, `lenis.on('scroll', ScrollTrigger.update)`) so nothing double-smooths.
-
----
-
-## 7. Information architecture
-
-1. **Preloader → hero handoff** — counter/masked reveal that hands off into the first frame (no white flash).
-2. **Hero (OBSIDIAN)** — near-darkness; cursor-driven fog/displacement shader reveals name + cryptic line; nav surfaces "beneath the surface."
-3. **Selected Work** — large stacked rows, hover-revealed preview, index numbering (a real sequence). One row's case page carries the **Artifact** 3D moment.
-4. **About (KINETIC)** — velocity-reactive variable type; masked word-by-word reveals.
-5. **Craft / Approach** — the discipline (perf, a11y, motion) stated as a differentiator.
-6. **Contact** — magnetic CTA, state-aware cursor, footer.
-- **Global:** Lenis, state-aware custom cursor, View Transitions between index ↔ case, reduced-motion + touch fallbacks throughout.
-
----
-
-## 8. Build roadmap
-
-- **Phase 0 — Foundation** ✅: stack installed; `next/font` (Fraunces/Geist/Geist Mono); Tailwind v4 `@theme` color + motion tokens; globals + reset; Lenis provider wired to GSAP ticker; reduced-motion/hover gates; layout shell; state-aware cursor.
-- **Phase 1 — Skeleton** ✅: Hero, Selected Work, About, Craft, Contact with placeholder content; `MaskText` + `Reveal` scroll-reveal system; condensing `Nav`; type scale live.
-- **Phase 2 — Signature hero** ✅: OBSIDIAN cursor-reactive OGL shader field (`ShaderField`/`HeroBackdrop`) + preloader→hero handoff (`Preloader`, scramble-resolve, once-per-session, skippable).
-- **Phase 3 — Kinetic body** ✅: `KineticBand` — velocity-reactive marquee (Fraunces `wght` + skew bend to scroll velocity).
-- **Phase 4 — Work + case** ✅: `/work/[slug]` case pages (SSG); shared-element `view-transition-name` on titles + opacity route `template`; one R3F Artifact (obsidian shard, drag-to-spin) on the signature case.
-- **Phase 5 — Polish** ✅: `Magnetic` CTAs; skip link; SEO/OG metadata; reduced-motion + `(hover:hover)` gates throughout; shader pauses off-view; R3F/canvas lazy + dpr-clamped.
-
-**Remaining / future:** swap placeholder content for real work; optional native View Transitions shared-element morph once Next 16 exposes a stable flag; OG image; Core Web Vitals field measurement.
+`prefers-reduced-motion` honored everywhere; pointer effects gated behind `(hover: hover) and (pointer: fine)`; visible focus; skip link; meaningful alt text; AA contrast in both themes.
