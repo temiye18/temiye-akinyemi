@@ -3,6 +3,7 @@ import { ArrowDown01Icon } from "@hugeicons/core-free-icons";
 import MaskText from "@/components/motion/MaskText";
 import Reveal from "@/components/motion/Reveal";
 import Magnetic from "@/components/motion/Magnetic";
+import ScrollFade from "@/components/motion/ScrollFade";
 import HeroBackdrop from "@/components/hero/HeroBackdrop";
 import LensReveal from "@/components/hero/LensReveal";
 import { site } from "@/lib/content";
@@ -20,7 +21,7 @@ export default function Hero() {
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,color-mix(in_srgb,var(--color-ground)_82%,transparent),color-mix(in_srgb,var(--color-ground)_30%,transparent)_55%,transparent)]" />
       </div>
 
-      <div className="mx-auto my-auto w-full max-w-[1360px]">
+      <ScrollFade className="mx-auto my-auto w-full max-w-[1360px]">
         <div className="relative w-fit">
           <h1 className="text-[clamp(2.5rem,8vw,7rem)] font-medium leading-[0.96] tracking-[-0.035em]">
             <MaskText as="span" text={`${site.name},`} className="block" />
@@ -77,7 +78,7 @@ export default function Hero() {
             ))}
           </dl>
         </Reveal>
-      </div>
+      </ScrollFade>
 
       {/* ambient scroll cue */}
       <div className="pointer-events-none absolute bottom-8 left-1/2 hidden -translate-x-1/2 sm:block">
