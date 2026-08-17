@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "motion/react";
 
 const SECTIONS = [
@@ -15,15 +15,18 @@ const SECTIONS = [
 /**
  * A quiet corner readout — section index, current section, live scroll velocity
  * (only while moving), and overall progress. Doubles as the site's scroll-progress
- * affordance. Desktop-only, aria-hidden, and it fades its telemetry at rest so it
- * never nags. Mono numerals here are genuine measurement, not decoration.
+ * affordance. Desktop-only and aria-hidden.
+ *
+ * Only the active section is React state (it changes rarely). Progress and
+ * velocity are written straight to the DOM via refs so scrolling never triggers
+ * a per-frame re-render.
  */
 export default function TelemetryHUD() {
   const reduce = useReducedMotion();
   const [active, setActive] = useState(0);
-  const [progress, setProgress] = useState(0);
-  const [vel, setVel] = useState(0);
-  const [scrolling, setScrolling] = useState(false);
+
+  const barRef = useRef<HTMLDivElement>(null);
+  const velRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const els = SECTIONS.map((s) => document.getElementById(s.id)).filter(
@@ -50,17 +53,26 @@ export default function TelemetryHUD() {
     const onScroll = () => {
       const y = window.scrollY;
       const h = document.documentElement.scrollHeight - window.innerHeight;
-      setProgress(h > 0 ? y / h : 0);
+      if (barRef.current) {
+        barRef.current.style.width = `${(h > 0 ? y / h : 0) * 100}%`;
+      }
 
       const now = performance.now();
       const dt = now - lastT;
-      if (dt > 0) setVel(Math.abs((y - lastY) / dt) * 1000);
+      if (velRef.current) {
+        if (dt > 0) {
+          const v = Math.abs((y - lastY) / dt) * 1000;
+          velRef.current.textContent = `· ${Math.round(v)} px/s`;
+        }
+        velRef.current.style.opacity = "1";
+      }
       lastY = y;
       lastT = now;
 
-      setScrolling(true);
       window.clearTimeout(stopTimer);
-      stopTimer = window.setTimeout(() => setScrolling(false), 220);
+      stopTimer = window.setTimeout(() => {
+        if (velRef.current) velRef.current.style.opacity = "0";
+      }, 220);
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -86,17 +98,13 @@ export default function TelemetryHUD() {
         <span className="uppercase">{SECTIONS[active].label}</span>
         {!reduce && (
           <span
-            className={`transition-opacity duration-300 ${scrolling ? "opacity-100" : "opacity-0"}`}
-          >
-            · {Math.round(vel)} px/s
-          </span>
+            ref={velRef}
+            className="opacity-0 transition-opacity duration-300"
+          />
         )}
       </div>
       <div className="h-px w-40 bg-[var(--color-line)]">
-        <div
-          className="h-full bg-[var(--color-muted)]"
-          style={{ width: `${progress * 100}%` }}
-        />
+        <div ref={barRef} className="h-full w-0 bg-[var(--color-muted)]" />
       </div>
     </div>
   );

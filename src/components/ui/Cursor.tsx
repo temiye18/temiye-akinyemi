@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { useMediaQuery } from "@/lib/useMediaQuery";
 
 /**
  * State-aware custom cursor. Renders only on fine-pointer devices, hides the
@@ -9,22 +10,20 @@ import { useEffect, useRef, useState } from "react";
  * against prefers-reduced-motion (shown, but without the lerp trail).
  */
 export default function Cursor() {
-  const [enabled, setEnabled] = useState(false);
+  const enabled = useMediaQuery("(hover: hover) and (pointer: fine)");
   const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
 
-  // 1) Decide whether to render at all (fine pointer only).
+  // Hide the native cursor while ours is active.
   useEffect(() => {
-    const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
-    if (!fine.matches) return;
-    setEnabled(true);
+    if (!enabled) return;
     document.body.dataset.cursor = "on";
     return () => {
       delete document.body.dataset.cursor;
     };
-  }, []);
+  }, [enabled]);
 
-  // 2) Wire pointer tracking only once the nodes are actually in the DOM.
+  // Wire pointer tracking only once the nodes are actually in the DOM.
   useEffect(() => {
     if (!enabled) return;
     const dot = dotRef.current;

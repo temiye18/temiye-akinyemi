@@ -20,28 +20,27 @@ export default function Hero() {
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,color-mix(in_srgb,var(--color-ground)_82%,transparent),color-mix(in_srgb,var(--color-ground)_30%,transparent)_55%,transparent)]" />
       </div>
 
-      <div className="mx-auto my-auto w-full max-w-[1600px]">
+      <div className="mx-auto my-auto w-full max-w-[1360px]">
         <div className="relative w-fit">
           <h1 className="text-[clamp(2.5rem,8vw,7rem)] font-medium leading-[0.96] tracking-[-0.035em]">
-            <MaskText as="span" text="Interfaces that" className="block" />
+            <MaskText as="span" text={`${site.name},`} className="block" />
             <span className="block">
+              <MaskText as="span" text="software" delay={0.12} />{" "}
               <MaskText
                 as="span"
-                text="withhold,"
+                text="engineer."
                 className="italic font-normal text-[var(--color-muted)]"
-                delay={0.12}
-              />{" "}
-              <MaskText as="span" text="then reward." delay={0.18} />
+                delay={0.18}
+              />
             </span>
           </h1>
           <LensReveal />
         </div>
 
-        <Reveal delay={0.5} className="mt-10 max-w-[52ch]">
+        <Reveal delay={0.5} className="mt-10 max-w-[54ch]">
           <p className="text-lg text-[var(--color-muted)] sm:text-xl">
-            {site.name} builds enigmatic, immersive, interactive web experiences
-            — where the craft is the interface, and the site itself is the
-            proof.
+            I build production web apps across healthcare, AI marketplaces, and
+            consumer platforms, and I care about how each one feels.
           </p>
         </Reveal>
 

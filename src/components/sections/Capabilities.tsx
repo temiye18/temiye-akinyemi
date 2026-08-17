@@ -1,11 +1,11 @@
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  Atom01Icon,
-  CubeIcon,
-  MouseScroll01Icon,
+  SourceCodeIcon,
+  ServerStack01Icon,
+  AiBrain01Icon,
+  Activity01Icon,
+  CreditCardIcon,
   DashboardSpeed01Icon,
-  AccessibilityIcon,
-  DashboardSquare01Icon,
 } from "@hugeicons/core-free-icons";
 import MaskText from "@/components/motion/MaskText";
 import Reveal from "@/components/motion/Reveal";
@@ -13,12 +13,12 @@ import Meter from "@/components/motion/Meter";
 import { capabilities } from "@/lib/content";
 
 const ICONS = [
-  Atom01Icon,
-  CubeIcon,
-  MouseScroll01Icon,
+  SourceCodeIcon,
+  ServerStack01Icon,
+  AiBrain01Icon,
+  Activity01Icon,
+  CreditCardIcon,
   DashboardSpeed01Icon,
-  AccessibilityIcon,
-  DashboardSquare01Icon,
 ];
 
 export default function Capabilities() {
@@ -27,7 +27,7 @@ export default function Capabilities() {
       id="capabilities"
       className="border-t border-[var(--color-line)] px-6 py-28 sm:px-10 lg:px-16 lg:py-40"
     >
-      <div className="mx-auto w-full max-w-[1600px]">
+      <div className="mx-auto w-full max-w-[1360px]">
         <div className="mb-16 flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
           <div>
             <Reveal className="mb-6" y={12}>

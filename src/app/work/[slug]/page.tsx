@@ -21,7 +21,7 @@ export async function generateMetadata({
   const project = getProject(slug);
   if (!project) return {};
   return {
-    title: `${project.title} — Temiye Akinyemi`,
+    title: `${project.title}, Temiye Akinyemi`,
     description: project.blurb,
   };
 }
@@ -133,7 +133,7 @@ export default async function CasePage({
                     key={h}
                     className="flex gap-3 text-sm text-[var(--color-muted)]"
                   >
-                    <span className="text-[var(--color-accent)]">—</span>
+                    <span className="text-[var(--color-faint)]">·</span>
                     {h}
                   </li>
                 ))}

@@ -11,7 +11,7 @@ export default function SelectedWork() {
       id="work"
       className="border-t border-[var(--color-line)] px-6 py-28 sm:px-10 lg:px-16 lg:py-40"
     >
-      <div className="mx-auto w-full max-w-[1600px]">
+      <div className="mx-auto w-full max-w-[1360px]">
         <div className="mb-16 flex items-end justify-between gap-6">
           <MaskText
             as="h2"
@@ -20,7 +20,7 @@ export default function SelectedWork() {
           />
           <Reveal delay={0.2}>
             <span className="eyebrow text-[var(--color-faint)]">
-              {projects.length.toString().padStart(2, "0")} — Projects
+              {projects.length.toString().padStart(2, "0")} · Projects
             </span>
           </Reveal>
         </div>

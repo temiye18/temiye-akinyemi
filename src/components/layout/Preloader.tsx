@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useLenis } from "lenis/react";
 import { site } from "@/lib/content";
@@ -8,44 +8,55 @@ import { site } from "@/lib/content";
 const GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ#%*/<>{}";
 const NAME = site.name.toUpperCase();
 
+/** false on the server and first client render, true after hydration. */
+function useMounted() {
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+}
+
 /**
  * Preloader → hero handoff. A 0→100 counter while the name resolves out of
  * scrambled glyphs, then the panel masks upward to reveal the hero. Runs once
  * per session, is skippable, and is skipped entirely for reduced-motion.
+ *
+ * Whether to show is derived (mounted + not reduced-motion + not seen this
+ * session + not yet dismissed) rather than set from an effect.
  */
 export default function Preloader() {
   const reduce = useReducedMotion();
   const lenis = useLenis();
-  const [visible, setVisible] = useState(true);
-  const [decided, setDecided] = useState(false);
+  const mounted = useMounted();
+
+  // read once, on the client, whether the preloader already ran this session
+  const [seen] = useState(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      return sessionStorage.getItem("preloaded") === "1";
+    } catch {
+      return false;
+    }
+  });
+  const [dismissed, setDismissed] = useState(false);
   const [count, setCount] = useState(0);
   const [label, setLabel] = useState(NAME);
 
-  // Decide on mount whether to show at all (avoids SSR flash / repeat visits).
-  useEffect(() => {
-    const seen =
-      typeof sessionStorage !== "undefined" &&
-      sessionStorage.getItem("preloaded") === "1";
-    if (reduce || seen) {
-      setVisible(false);
-    }
-    setDecided(true);
-  }, [reduce]);
+  const show = mounted && !reduce && !seen && !dismissed;
 
-  // Lock scroll through Lenis while the overlay is up. Doing this via Lenis
-  // (not `html { overflow: hidden }`) avoids leaving Lenis with stale scroll
-  // dimensions, which would otherwise refuse to scroll until a wheel/resize.
+  // Lock scroll through Lenis while the overlay is up.
   useEffect(() => {
-    if (!visible || !decided) return;
+    if (!show) return;
     lenis?.stop();
     return () => {
       lenis?.start();
     };
-  }, [visible, decided, lenis]);
+  }, [show, lenis]);
 
   // Drive the counter + scramble.
   useEffect(() => {
-    if (!visible || !decided) return;
+    if (!show) return;
     let raf = 0;
     const duration = 1500;
     const start = performance.now();
@@ -53,7 +64,6 @@ export default function Preloader() {
 
     const tick = (now: number) => {
       const p = Math.min(1, (now - start) / duration);
-      // ease-out for the numerals so they settle
       const eased = 1 - Math.pow(1 - p, 3);
       const value = Math.round(eased * 100);
       setCount(value);
@@ -73,20 +83,28 @@ export default function Preloader() {
       } else if (!finished) {
         finished = true;
         setLabel(NAME);
-        sessionStorage.setItem("preloaded", "1");
-        setTimeout(() => setVisible(false), 260);
+        try {
+          sessionStorage.setItem("preloaded", "1");
+        } catch {
+          /* ignore */
+        }
+        setTimeout(() => setDismissed(true), 260);
       }
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [visible, decided]);
+  }, [show]);
 
   // Skip on click / key.
   useEffect(() => {
-    if (!visible || !decided) return;
+    if (!show) return;
     const skip = () => {
-      sessionStorage.setItem("preloaded", "1");
-      setVisible(false);
+      try {
+        sessionStorage.setItem("preloaded", "1");
+      } catch {
+        /* ignore */
+      }
+      setDismissed(true);
     };
     window.addEventListener("pointerdown", skip);
     window.addEventListener("keydown", skip);
@@ -94,13 +112,11 @@ export default function Preloader() {
       window.removeEventListener("pointerdown", skip);
       window.removeEventListener("keydown", skip);
     };
-  }, [visible, decided]);
-
-  if (!decided) return null;
+  }, [show]);
 
   return (
     <AnimatePresence>
-      {visible && (
+      {show && (
         <motion.div
           className="fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-[var(--color-ground)]"
           initial={{ opacity: 1 }}
@@ -114,7 +130,7 @@ export default function Preloader() {
             {label}
           </span>
           <span className="eyebrow mt-6 text-[var(--color-faint)] [font-variant-numeric:tabular-nums]">
-            {count.toString().padStart(3, "0")} — Loading experience
+            {count.toString().padStart(3, "0")} · Loading experience
           </span>
 
           <div className="absolute bottom-0 left-0 h-px w-full bg-[var(--color-line)]">

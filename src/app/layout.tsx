@@ -29,15 +29,15 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://temiye.dev"),
   title: {
-    default: "Temiye Akinyemi — Frontend Engineer",
+    default: "Temiye Akinyemi, Software Engineer",
     template: "%s",
   },
   description:
-    "Frontend engineer crafting enigmatic, interactive, immersive web interfaces — where the craft is the interface.",
+    "Temiye Akinyemi is a software engineer in Lagos building production web apps across healthcare, AI marketplaces, and consumer platforms.",
   openGraph: {
-    title: "Temiye Akinyemi — Frontend Engineer",
+    title: "Temiye Akinyemi, Software Engineer",
     description:
-      "Enigmatic, interactive, immersive web interfaces — the site is the proof.",
+      "Software engineer building production web apps across healthcare, AI marketplaces, and consumer platforms.",
     type: "website",
   },
 };

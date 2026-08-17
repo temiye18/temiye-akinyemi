@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useReducedMotion } from "motion/react";
+import { useMediaQuery } from "@/lib/useMediaQuery";
 
 /**
  * "Withhold, then reward" made literal: a soft veil (blur + ground tint) over
@@ -13,12 +14,8 @@ import { useReducedMotion } from "motion/react";
 export default function LensReveal() {
   const ref = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
-  const [active, setActive] = useState(false);
-
-  useEffect(() => {
-    const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-    if (fine && !reduce) setActive(true);
-  }, [reduce]);
+  const fine = useMediaQuery("(hover: hover) and (pointer: fine)");
+  const active = fine && !reduce;
 
   useEffect(() => {
     if (!active) return;

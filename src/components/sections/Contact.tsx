@@ -1,7 +1,6 @@
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Github01Icon,
-  NewTwitterIcon,
   Linkedin01Icon,
   File01Icon,
   ArrowRight01Icon,
@@ -14,9 +13,8 @@ import { site } from "@/lib/content";
 
 const SOCIAL_ICONS: Record<string, typeof Github01Icon> = {
   GitHub: Github01Icon,
-  "X / Twitter": NewTwitterIcon,
   LinkedIn: Linkedin01Icon,
-  "Read.cv": File01Icon,
+  Résumé: File01Icon,
 };
 
 export default function Contact() {
@@ -25,7 +23,7 @@ export default function Contact() {
       id="contact"
       className="border-t border-[var(--color-line)] px-6 pb-16 pt-28 sm:px-10 lg:px-16 lg:pt-40"
     >
-      <div className="mx-auto w-full max-w-[1600px]">
+      <div className="mx-auto w-full max-w-[1360px]">
         <Reveal className="mb-8" y={12}>
           <p className="eyebrow">Contact</p>
         </Reveal>
@@ -87,9 +85,7 @@ export default function Contact() {
               );
             })}
           </div>
-          <p className="eyebrow">
-            © {site.since}–26 {site.name} · Built with Next.js
-          </p>
+          <p className="eyebrow">© 2026 {site.name} · Built with Next.js</p>
         </footer>
       </div>
     </section>

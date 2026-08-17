@@ -8,7 +8,7 @@ export default function Experience() {
       id="experience"
       className="border-t border-[var(--color-line)] px-6 py-28 sm:px-10 lg:px-16 lg:py-40"
     >
-      <div className="mx-auto w-full max-w-[1600px]">
+      <div className="mx-auto w-full max-w-[1360px]">
         <div className="mb-16 flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
           <div>
             <Reveal className="mb-6" y={12}>
@@ -22,7 +22,7 @@ export default function Experience() {
           </div>
           <Reveal delay={0.15}>
             <span className="eyebrow">
-              {experience.length.toString().padStart(2, "0")} — Roles
+              {experience.length.toString().padStart(2, "0")} · Roles
             </span>
           </Reveal>
         </div>

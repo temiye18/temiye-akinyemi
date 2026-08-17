@@ -1,6 +1,7 @@
 import MaskText from "@/components/motion/MaskText";
 import Reveal from "@/components/motion/Reveal";
 import LocalTime from "@/components/ui/LocalTime";
+import Portrait from "@/components/ui/Portrait";
 import { about, site } from "@/lib/content";
 
 const CARD =
@@ -12,7 +13,7 @@ export default function About() {
       id="about"
       className="border-t border-[var(--color-line)] px-6 py-28 sm:px-10 lg:px-16 lg:py-40"
     >
-      <div className="mx-auto w-full max-w-[1600px]">
+      <div className="mx-auto w-full max-w-[1360px]">
         <Reveal className="mb-12" y={12}>
           <p className="eyebrow">About</p>
         </Reveal>
@@ -21,30 +22,7 @@ export default function About() {
         <div className="grid gap-4 md:grid-cols-3 md:grid-rows-[auto_1fr]">
           {/* portrait — spans both rows */}
           <Reveal className="md:row-span-2" y={12}>
-            <div
-              className={`${CARD} relative flex h-full min-h-[22rem] flex-col justify-end overflow-hidden p-7`}
-            >
-              <span
-                aria-hidden
-                className="pointer-events-none absolute -right-6 -top-10 select-none font-[family-name:var(--font-display)] text-[13rem] leading-none text-[var(--color-line-strong)]"
-              >
-                T
-              </span>
-              <div
-                aria-hidden
-                className="pointer-events-none absolute inset-0"
-                style={{
-                  background:
-                    "radial-gradient(90% 60% at 50% 120%, color-mix(in srgb, var(--color-ink) 6%, transparent), transparent 70%)",
-                }}
-              />
-              <div className="relative">
-                <p className="font-[family-name:var(--font-display)] text-2xl tracking-tight">
-                  {site.name}
-                </p>
-                <p className="eyebrow mt-2">{site.location}</p>
-              </div>
-            </div>
+            <Portrait />
           </Reveal>
 
           {/* statement — wide */}

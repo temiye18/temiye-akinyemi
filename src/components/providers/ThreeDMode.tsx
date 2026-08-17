@@ -23,15 +23,14 @@ export default function ThreeDProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [enabled, setEnabledState] = useState(false);
-
-  useEffect(() => {
+  const [enabled, setEnabledState] = useState(() => {
+    if (typeof window === "undefined") return false;
     try {
-      setEnabledState(localStorage.getItem("view-mode") === "3d");
+      return localStorage.getItem("view-mode") === "3d";
     } catch {
-      /* ignore */
+      return false;
     }
-  }, []);
+  });
 
   useEffect(() => {
     document.documentElement.dataset.viewMode = enabled ? "3d" : "2d";

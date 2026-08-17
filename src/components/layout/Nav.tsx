@@ -1,16 +1,38 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "motion/react";
+import {
+  motion,
+  AnimatePresence,
+  useReducedMotion,
+  useMotionValue,
+  useSpring,
+} from "motion/react";
 import { useLenis } from "lenis/react";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Menu01Icon, Cancel01Icon } from "@hugeicons/core-free-icons";
+import {
+  Menu01Icon,
+  Cancel01Icon,
+  Briefcase01Icon,
+  UserCircleIcon,
+  SparklesIcon,
+  WorkHistoryIcon,
+  Mail01Icon,
+} from "@hugeicons/core-free-icons";
 import { nav, site } from "@/lib/content";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import Mode2D3DToggle from "@/components/ui/Mode2D3DToggle";
 
 // section ids in document order; index 0 (hero) means "no link active"
 const SECTIONS = ["top", "work", "about", "capabilities", "experience", "contact"];
+
+const NAV_ICONS: Record<string, typeof Menu01Icon> = {
+  "#work": Briefcase01Icon,
+  "#about": UserCircleIcon,
+  "#capabilities": SparklesIcon,
+  "#experience": WorkHistoryIcon,
+  "#contact": Mail01Icon,
+};
 
 /**
  * Floating console nav. Contained capsules rather than a full-width bar, with a
@@ -27,7 +49,16 @@ export default function Nav() {
 
   const linkRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const listRef = useRef<HTMLUListElement>(null);
-  const [pill, setPill] = useState({ left: 0, width: 0, shown: false });
+
+  // indicator position driven by motion values (not React state), so measuring
+  // the DOM after render never triggers a re-render
+  const pillLeft = useMotionValue(0);
+  const pillWidth = useMotionValue(0);
+  const pillOpacity = useMotionValue(0);
+  const springCfg = { stiffness: 400, damping: 34 };
+  const sLeft = useSpring(pillLeft, springCfg);
+  const sWidth = useSpring(pillWidth, springCfg);
+  const sOpacity = useSpring(pillOpacity, { stiffness: 300, damping: 30 });
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -62,10 +93,10 @@ export default function Nav() {
   );
   const target = hovered ?? (activeNavIndex >= 0 ? activeNavIndex : null);
 
-  // position the pill under the target link
+  // position the pill under the target link (motion values, no re-render)
   useEffect(() => {
     if (target === null) {
-      setPill((p) => ({ ...p, shown: false }));
+      pillOpacity.set(0);
       return;
     }
     const el = linkRefs.current[target];
@@ -73,8 +104,10 @@ export default function Nav() {
     if (!el || !list) return;
     const lr = list.getBoundingClientRect();
     const er = el.getBoundingClientRect();
-    setPill({ left: er.left - lr.left, width: er.width, shown: true });
-  }, [target, scrolled]);
+    pillLeft.set(er.left - lr.left);
+    pillWidth.set(er.width);
+    pillOpacity.set(1);
+  }, [target, scrolled, pillLeft, pillWidth, pillOpacity]);
 
   // lock scroll while the mobile menu is open
   useEffect(() => {
@@ -101,7 +134,7 @@ export default function Nav() {
   return (
     <>
       <header className="fixed inset-x-0 top-0 z-50">
-        <nav className="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-5 py-4 sm:px-8 lg:px-10">
+        <nav className="mx-auto flex max-w-[1360px] items-center justify-between gap-4 px-5 py-4 sm:px-8 lg:px-10">
           {/* brand */}
           <a
             href="#top"
@@ -118,20 +151,15 @@ export default function Nav() {
               <motion.span
                 aria-hidden
                 className="absolute inset-y-0 rounded-full bg-[var(--color-accent-soft)]"
-                initial={false}
-                animate={{
-                  left: pill.left,
-                  width: pill.width,
-                  opacity: pill.shown ? 1 : 0,
-                }}
-                transition={
+                style={
                   reduce
-                    ? { duration: 0 }
-                    : { type: "spring", stiffness: 400, damping: 34 }
+                    ? { left: pillLeft, width: pillWidth, opacity: pillOpacity }
+                    : { left: sLeft, width: sWidth, opacity: sOpacity }
                 }
               />
               {nav.map((item, i) => {
                 const isActive = activeNavIndex === i;
+                const showIcon = isActive || hovered === i;
                 return (
                   <li key={item.href} className="relative z-10">
                     <a
@@ -142,12 +170,22 @@ export default function Nav() {
                       data-cursor-target
                       onPointerEnter={() => setHovered(i)}
                       onPointerLeave={() => setHovered(null)}
-                      className={`block px-4 py-1.5 text-[0.7rem] font-medium uppercase tracking-[0.14em] transition-colors duration-300 ${
+                      className={`flex items-center gap-1.5 px-3.5 py-1.5 text-[0.7rem] font-medium uppercase tracking-[0.14em] transition-colors duration-300 ${
                         isActive
                           ? "text-[var(--color-ink)]"
                           : "text-[var(--color-muted)] hover:text-[var(--color-ink)]"
                       }`}
                     >
+                      <HugeiconsIcon
+                        icon={NAV_ICONS[item.href]}
+                        size={13}
+                        strokeWidth={1.7}
+                        className={`transition-[opacity,transform] duration-300 ease-[var(--ease-out-expo)] ${
+                          showIcon
+                            ? "translate-x-0 opacity-100"
+                            : "-translate-x-1 opacity-0"
+                        }`}
+                      />
                       {item.label}
                     </a>
                   </li>
@@ -217,11 +255,17 @@ export default function Nav() {
                       e.preventDefault();
                       goMobile(item.href);
                     }}
-                    className="flex items-baseline gap-4 border-b border-[var(--color-line)] py-4 font-[family-name:var(--font-display)] text-[2.5rem] leading-none tracking-tight"
+                    className="flex items-center gap-4 border-b border-[var(--color-line)] py-4 font-[family-name:var(--font-display)] text-[2.5rem] leading-none tracking-tight"
                   >
                     <span className="eyebrow text-[var(--color-faint)]">
                       {(i + 1).toString().padStart(2, "0")}
                     </span>
+                    <HugeiconsIcon
+                      icon={NAV_ICONS[item.href]}
+                      size={22}
+                      strokeWidth={1.5}
+                      className="text-[var(--color-muted)]"
+                    />
                     {item.label}
                   </a>
                 </motion.li>
