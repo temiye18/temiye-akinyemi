@@ -21,6 +21,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { nav, site } from "@/lib/content";
 import ThemeToggle from "@/components/ui/ThemeToggle";
+import Mode2D3DToggle from "@/components/ui/Mode2D3DToggle";
 
 // section ids in document order; index 0 (hero) means "no link active"
 const SECTIONS = ["top", "work", "about", "capabilities", "experience", "contact"];
@@ -195,6 +196,9 @@ export default function Nav() {
 
           {/* controls */}
           <div className="flex items-center gap-3">
+            <div className={`${capsule} ${capsuleTone} hidden items-center p-1 lg:flex`}>
+              <Mode2D3DToggle />
+            </div>
             <div className={`${capsule} ${capsuleTone} hidden items-center p-1 sm:flex`}>
               <ThemeToggle />
             </div>
@@ -269,7 +273,8 @@ export default function Nav() {
               ))}
             </ul>
 
-            <div className="mt-10 flex items-center justify-end">
+            <div className="mt-10 flex items-center justify-between">
+              <Mode2D3DToggle />
               <ThemeToggle />
             </div>
           </motion.div>

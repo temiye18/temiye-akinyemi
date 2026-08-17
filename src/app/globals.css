@@ -87,6 +87,17 @@ body {
   color: var(--color-ground);
 }
 
+/* 3D mode: a fixed dotted field behind the content plane so it reads as
+   floating in space. Covers the whole viewport regardless of scroll. */
+:root[data-view-mode="3d"] body {
+  background-image: radial-gradient(
+    var(--color-line-strong) 1px,
+    transparent 1px
+  );
+  background-size: 28px 28px;
+  background-attachment: fixed;
+}
+
 /* Display / kinetic type leans on Fraunces */
 h1,
 h2,

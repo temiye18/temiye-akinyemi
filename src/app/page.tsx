@@ -1,4 +1,5 @@
 import Nav from "@/components/layout/Nav";
+import SpacePlane from "@/components/layout/SpacePlane";
 import Hero from "@/components/sections/Hero";
 import SelectedWork from "@/components/sections/SelectedWork";
 import About from "@/components/sections/About";
@@ -13,7 +14,7 @@ export default function Home() {
     <>
       <Nav />
       <TelemetryHUD />
-      <main>
+      <SpacePlane>
         <Hero />
         <SelectedWork />
 
@@ -31,7 +32,7 @@ export default function Home() {
         <Capabilities />
         <Experience />
         <Contact />
-      </main>
+      </SpacePlane>
     </>
   );
 }
