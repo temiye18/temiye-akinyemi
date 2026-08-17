@@ -1,207 +1,203 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "next-view-transitions";
 import Image from "next/image";
 import { useReducedMotion } from "motion/react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowUpRight01Icon } from "@hugeicons/core-free-icons";
-import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
+import { gsap, useGSAP } from "@/lib/gsap";
 import { shotUrl } from "@/lib/preview";
 import { projects } from "@/lib/content";
+import { useMediaQuery } from "@/lib/useMediaQuery";
 import SignalGraphic from "@/components/ui/SignalGraphic";
 
+/**
+ * Selected Work as a static typographic index. Each project is a still row, so
+ * a click always lands (mousedown and mouseup share the same target) and the
+ * shared-element view transition on the title morphs cleanly into the case page.
+ * The signature moment is withheld until you engage: hovering a row floats that
+ * project's live preview beside the cursor and dims the rest. The preview is
+ * portaled to <body> (true viewport space, above the 3D plane) and never
+ * captures pointer events. Touch pointers get the preview inline per row.
+ */
 export default function SelectedWork() {
   const reduce = useReducedMotion();
-  // Only reduced motion drops the pinned coverflow; the pin itself is mode
-  // agnostic (transform-pinning), so 2D and 3D share it without a rebuild.
-  const plain = reduce;
+  const fine = useMediaQuery("(hover: hover) and (pointer: fine)");
   const sectionRef = useRef<HTMLElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
-  const progressRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
+  const previewRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState<number | null>(null);
 
-  // Build synchronously in a layout effect (via useGSAP). Because this section
-  // is an earlier sibling than the manifesto, this runs before ScrollReveal's
-  // own layout effect, so the pin-spacer already exists when ScrollReveal
-  // measures its scroll range. useGSAP reverts the whole context on cleanup,
-  // which kills the trigger, reverts the pin (spacer + inline styles) and clears
-  // the card transforms.
+  // Float the preview to the pointer. Motion values, not state, so moving the
+  // mouse never re-renders. Reduced motion snaps instead of easing.
   useGSAP(
     () => {
-      if (plain) return;
-      const track = trackRef.current;
-      const section = sectionRef.current;
-      if (!track || !section) return;
-
-      const cards = gsap.utils.toArray<HTMLElement>("[data-card]", track);
-      const clampDist = gsap.utils.clamp(-1.25, 1.25);
-      const distance = () => track.scrollWidth - window.innerWidth;
-
-      // Coverflow depth — each card swings on Y, recedes in Z and dims by how far
-      // its centre sits from the middle of the screen; the centred card faces us
-      // flat and full. The media inside drifts the other way. Position is read
-      // from layout (offsetLeft + the track's x), never from
-      // getBoundingClientRect, so the 3D transforms we write can't feed back.
-      const applyDepth = () => {
-        const mid = window.innerWidth / 2;
-        const base = section.getBoundingClientRect().left;
-        const trackX = parseFloat(String(gsap.getProperty(track, "x"))) || 0;
-        for (const card of cards) {
-          const cardCenter =
-            base + trackX + card.offsetLeft + card.offsetWidth / 2;
-          const off = clampDist((cardCenter - mid) / mid);
-          const mag = Math.abs(off);
-          gsap.set(card, {
-            rotationY: off * -30,
-            z: -mag * 320,
-            scale: 1 - mag * 0.14,
-            opacity: 1 - mag * 0.4,
-            // stack the centred card above its neighbours
-            zIndex: Math.round((1 - mag) * 100),
-          });
-          const media = card.querySelector<HTMLElement>("[data-media]");
-          if (media) gsap.set(media, { xPercent: off * -12, scale: 1.12 });
-        }
+      if (!fine) return;
+      const el = previewRef.current;
+      if (!el) return;
+      const dur = reduce ? 0 : 0.45;
+      const xTo = gsap.quickTo(el, "x", { duration: dur, ease: "power3.out" });
+      const yTo = gsap.quickTo(el, "y", { duration: dur, ease: "power3.out" });
+      const onMove = (e: PointerEvent) => {
+        xTo(Math.min(e.clientX, window.innerWidth - 372));
+        yTo(gsap.utils.clamp(150, window.innerHeight - 150, e.clientY));
       };
-
-      gsap.to(track, {
-        x: () => -distance(),
-        ease: "none",
-        scrollTrigger: {
-          trigger: section,
-          start: "top top",
-          end: () => `+=${distance()}`,
-          pin: true,
-          // Transform-pinning (not fixed) in BOTH modes. It holds the pin by
-          // translating the element, which (a) survives the 3D plane's transform
-          // ancestor and (b) means toggling 2D<->3D never has to rebuild the pin,
-          // so there's no spacer churn, no scroll jump, no blank on switch.
-          pinType: "transform",
-          scrub: 1,
-          invalidateOnRefresh: true,
-          onRefresh: applyDepth,
-          onUpdate: (self) => {
-            applyDepth();
-            if (progressRef.current)
-              progressRef.current.style.transform = `scaleX(${self.progress})`;
-          },
-        },
-      });
-
-      applyDepth();
-      // Rebuilding the pin changes the page height; refresh so sibling triggers
-      // (the manifesto word-reveal) recompute against the new layout on toggle.
-      ScrollTrigger.refresh();
+      window.addEventListener("pointermove", onMove, { passive: true });
+      return () => window.removeEventListener("pointermove", onMove);
     },
-    { scope: sectionRef, dependencies: [plain] },
+    { dependencies: [fine, reduce] },
+  );
+
+  // Entrance: rows rise and fade in on scroll, staggered. Visible by default
+  // (SSR) so a paused tab or headless render never ships it blank.
+  useGSAP(
+    () => {
+      if (reduce) return;
+      const rows = gsap.utils.toArray<HTMLElement>("[data-row]", listRef.current);
+      gsap.from(rows, {
+        opacity: 0,
+        yPercent: 45,
+        duration: 0.9,
+        ease: "power3.out",
+        stagger: 0.09,
+        scrollTrigger: { trigger: listRef.current, start: "top 82%" },
+      });
+    },
+    { scope: sectionRef, dependencies: [] },
   );
 
   return (
     <section
       ref={sectionRef}
       id="work"
-      className={`relative border-t border-[var(--color-line)] ${plain ? "" : "overflow-hidden"}`}
+      className="relative border-t border-[var(--color-line)] px-6 py-24 sm:px-10 sm:py-28 lg:px-16 lg:py-36"
     >
-      <div
-        className={
-          plain
-            ? "flex snap-x snap-mandatory gap-6 overflow-x-auto px-6 py-28 sm:px-10 lg:px-16"
-            : "flex h-screen items-center [perspective:1800px]"
-        }
-      >
-        <div
-          ref={trackRef}
-          className={`flex items-stretch gap-8 will-change-transform [transform-style:preserve-3d] ${plain ? "" : "pl-[8vw] pr-[8vw]"}`}
-        >
-          {/* intro panel */}
-          <div className="flex h-[70vh] w-[min(72vw,380px)] flex-none flex-col justify-center pr-6">
-            <p className="eyebrow mb-6">Selected Work</p>
+      <div className="mx-auto w-full max-w-[1360px]">
+        <header className="mb-8 flex items-end justify-between gap-6 sm:mb-12">
+          <div>
+            <p className="eyebrow mb-4">Selected Work</p>
             <h2 className="text-[clamp(2.2rem,5vw,4rem)] font-medium leading-[0.98] tracking-tight">
               Selected{" "}
               <span className="italic font-normal text-[var(--color-muted)]">
                 work.
               </span>
             </h2>
-            <p className="mt-6 max-w-[30ch] text-[var(--color-muted)]">
-              A few things I have built. Scroll to move through them.
-            </p>
-            <p className="eyebrow mt-8 text-[var(--color-faint)]">
-              {projects.length.toString().padStart(2, "0")} — Projects
-            </p>
           </div>
+          <p className="hidden max-w-[26ch] text-sm leading-relaxed text-[var(--color-muted)] sm:block">
+            {fine
+              ? "Hover a title to preview it. Click to read the case."
+              : "Tap a project to read the case."}
+          </p>
+        </header>
 
-          {/* project cards */}
-          {projects.map((p) => (
-            <Link
-              key={p.slug}
-              href={`/work/${p.slug}`}
-              data-card
-              data-cursor-target
-              style={{ backfaceVisibility: "hidden" }}
-              className="group relative flex h-[70vh] w-[min(84vw,580px)] flex-none snap-center flex-col overflow-hidden rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] shadow-[0_40px_120px_-40px_rgba(0,0,0,0.7)] transition-colors duration-300 hover:border-[var(--color-line-strong)]"
-            >
-              {/* visual */}
-              <div className="relative flex-1 overflow-hidden">
-                <div data-media className="absolute inset-0 will-change-transform">
-                  {p.url ? (
-                    <Image
-                      src={p.preview ?? shotUrl(p.url)}
-                      alt={`${p.title} preview`}
-                      fill
-                      unoptimized={!p.preview}
-                      sizes="(max-width: 640px) 84vw, 580px"
-                      className="object-cover object-top transition-transform duration-700 ease-[var(--ease-out-expo)] group-hover:scale-[1.04]"
-                    />
-                  ) : (
-                    <SignalGraphic />
-                  )}
-                </div>
-              </div>
-
-              {/* meta */}
-              <div className="border-t border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-7">
-                <div className="mb-3 flex items-center justify-between">
-                  <span className="eyebrow text-[var(--color-faint)]">
+        <ul
+          ref={listRef}
+          onPointerLeave={() => setActive(null)}
+          className="border-b border-[var(--color-line)]"
+        >
+          {projects.map((p, i) => {
+            const dim = active !== null && active !== i;
+            return (
+              <li key={p.slug} data-row>
+                <Link
+                  href={`/work/${p.slug}`}
+                  data-cursor-target
+                  onPointerEnter={() => setActive(i)}
+                  className="group flex items-center gap-3 border-t border-[var(--color-line)] py-5 sm:gap-5 md:py-7"
+                >
+                  <span className="w-7 shrink-0 font-[family-name:var(--font-mono)] text-xs text-[var(--color-faint)] tabular-nums md:w-10">
                     {p.index}
                   </span>
-                  <span className="eyebrow text-[var(--color-faint)]">
+
+                  <h3
+                    style={{ viewTransitionName: `title-${p.slug}` }}
+                    className={`min-w-0 flex-1 text-[clamp(1.4rem,3.6vw,2.6rem)] font-medium leading-[1.05] tracking-tight transition-[color,transform] duration-500 ease-[var(--ease-out-expo)] group-hover:translate-x-1.5 ${
+                      dim ? "text-[var(--color-muted)]" : "text-[var(--color-ink)]"
+                    }`}
+                  >
+                    {p.title}
+                  </h3>
+
+                  <span
+                    className={`hidden shrink-0 text-sm transition-colors duration-500 sm:block ${
+                      dim ? "text-[var(--color-faint)]" : "text-[var(--color-muted)]"
+                    }`}
+                  >
+                    {p.discipline}
+                  </span>
+
+                  <span className="hidden w-12 shrink-0 text-right font-[family-name:var(--font-mono)] text-xs text-[var(--color-faint)] tabular-nums md:block">
                     {p.year}
                   </span>
-                </div>
-                <h3
-                  style={{ viewTransitionName: `title-${p.slug}` }}
-                  className="flex items-center gap-3 text-[clamp(1.6rem,3vw,2.4rem)] font-medium leading-none tracking-tight"
-                >
-                  {p.title}
+
+                  {/* touch pointers have no hover, so preview inline */}
+                  {!fine && (
+                    <span className="relative aspect-[16/10] w-20 shrink-0 overflow-hidden rounded-md border border-[var(--color-line)] bg-[var(--color-surface)] sm:w-24">
+                      <PreviewMedia project={p} sizes="96px" />
+                    </span>
+                  )}
+
                   <HugeiconsIcon
                     icon={ArrowUpRight01Icon}
                     size={22}
                     strokeWidth={1.5}
-                    className="text-[var(--color-faint)] transition-all duration-300 ease-[var(--ease-out-expo)] group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[var(--color-ink)]"
+                    className="shrink-0 text-[var(--color-faint)] transition-all duration-500 ease-[var(--ease-out-expo)] group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[var(--color-ink)]"
                   />
-                </h3>
-                <p className="mt-2 text-sm text-[var(--color-muted)]">
-                  {p.discipline}
-                </p>
-              </div>
-            </Link>
-          ))}
-
-          {/* trailing spacer */}
-          {!plain && <div className="h-1 w-[6vw] flex-none" />}
-        </div>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
       </div>
 
-      {/* horizontal progress */}
-      {!plain && (
-        <div className="absolute bottom-0 left-0 h-px w-full bg-[var(--color-line)]">
+      {fine &&
+        typeof document !== "undefined" &&
+        createPortal(
           <div
-            ref={progressRef}
-            className="h-full origin-left bg-[var(--color-ink)]"
-            style={{ transform: "scaleX(0)" }}
-          />
-        </div>
-      )}
+            ref={previewRef}
+            aria-hidden
+            className="pointer-events-none fixed left-0 top-0 z-[60] will-change-transform"
+          >
+            <div
+              data-show={active !== null}
+              className="relative ml-6 aspect-[16/10] w-[340px] -translate-y-1/2 scale-95 overflow-hidden rounded-xl border border-[var(--color-line-strong)] bg-[var(--color-surface)] opacity-0 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.75)] transition-[opacity,transform] duration-500 ease-[var(--ease-out-expo)] data-[show=true]:scale-100 data-[show=true]:opacity-100"
+            >
+              {projects.map((p, i) => (
+                <div
+                  key={p.slug}
+                  className="absolute inset-0 transition-opacity duration-300"
+                  style={{ opacity: active === i ? 1 : 0 }}
+                >
+                  <PreviewMedia project={p} sizes="340px" />
+                </div>
+              ))}
+            </div>
+          </div>,
+          document.body,
+        )}
     </section>
+  );
+}
+
+/** Live screenshot for a project, or the signal graphic when it has no live site. */
+function PreviewMedia({
+  project,
+  sizes,
+}: {
+  project: (typeof projects)[number];
+  sizes: string;
+}) {
+  if (!project.url) return <SignalGraphic />;
+  return (
+    <Image
+      src={project.preview ?? shotUrl(project.url)}
+      alt={`${project.title} preview`}
+      fill
+      unoptimized={!project.preview}
+      sizes={sizes}
+      className="object-cover object-top"
+    />
   );
 }

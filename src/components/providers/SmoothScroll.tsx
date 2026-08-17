@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { ReactLenis, useLenis } from "lenis/react";
 import { useReducedMotion } from "motion/react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
@@ -12,6 +13,7 @@ import { gsap, ScrollTrigger } from "@/lib/gsap";
  */
 function ScrollTriggerBridge() {
   const lenis = useLenis();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!lenis) return;
@@ -34,6 +36,21 @@ function ScrollTriggerBridge() {
       gsap.ticker.remove(raf);
     };
   }, [lenis]);
+
+  // Re-sync on client navigation. The Lenis root persists across route changes,
+  // so after going home <-> case (very different heights) it keeps stale
+  // dimensions and every pin keeps stale positions. Without this, the returned
+  // home page has a mismatched pin/coverflow whose cards no longer sit where
+  // hit-testing expects, so clicks land on nothing. Resize Lenis and refresh
+  // ScrollTrigger a frame after the new route paints.
+  useEffect(() => {
+    if (!lenis) return;
+    const id = requestAnimationFrame(() => {
+      lenis.resize();
+      ScrollTrigger.refresh();
+    });
+    return () => cancelAnimationFrame(id);
+  }, [pathname, lenis]);
 
   return null;
 }
