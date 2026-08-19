@@ -5,6 +5,8 @@ import "./globals.css";
 import SmoothScroll from "@/components/providers/SmoothScroll";
 import ThreeDProvider from "@/components/providers/ThreeDMode";
 import Cursor from "@/components/ui/Cursor";
+import AmbientSound from "@/components/ui/AmbientSound";
+import WaveformOverlay from "@/components/ui/WaveformOverlay";
 import Preloader from "@/components/layout/Preloader";
 
 const fraunces = Fraunces({
@@ -74,7 +76,9 @@ export default function RootLayout({
               {children}
             </ThreeDProvider>
           </SmoothScroll>
+          <WaveformOverlay />
           <Cursor />
+          <AmbientSound />
         </body>
       </html>
     </ViewTransitions>

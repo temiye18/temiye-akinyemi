@@ -153,6 +153,32 @@ h3 {
   }
 }
 
+/* Ambient-sound equalizer — bars breathe only while sound is playing. */
+.eq-bar {
+  transform: scaleY(0.32);
+  transform-origin: bottom;
+}
+.eq[data-playing="true"] .eq-bar {
+  animation-name: eq-bar;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+  animation-direction: alternate;
+}
+@keyframes eq-bar {
+  from {
+    transform: scaleY(0.28);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .eq[data-playing="true"] .eq-bar {
+    animation: none;
+    transform: scaleY(0.6);
+  }
+}
+
 /* Small label — a quiet sans, not a mono costume. */
 .eyebrow {
   font-family: var(--font-sans), system-ui, sans-serif;
