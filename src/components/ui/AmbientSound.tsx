@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useReducedMotion } from "motion/react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { VolumeHighIcon, VolumeOffIcon } from "@hugeicons/core-free-icons";
 import { AmbientAudio } from "@/lib/ambientAudio";
 import { AmbientPlaylist } from "@/lib/ambientPlaylist";
 import { ambientState } from "@/lib/ambientState";
@@ -10,14 +11,6 @@ import { ambientState } from "@/lib/ambientState";
 // ends, and repeats. Falls back to the generative pad if none can load.
 const TRACKS = ["/something-there.mp3", "/winterwide.mp3"];
 const TRACK_VOLUME = 0.5;
-
-// per-bar animation timing, so the equalizer reads as organic rather than synced
-const BARS = [
-  { dur: "0.9s", delay: "0s" },
-  { dur: "1.3s", delay: "0.18s" },
-  { dur: "0.7s", delay: "0.36s" },
-  { dur: "1.1s", delay: "0.1s" },
-];
 
 /**
  * A quiet ambient-sound toggle. Off by default (autoplay policy, and no one
@@ -28,7 +21,6 @@ const BARS = [
  * carries across page transitions instead of restarting.
  */
 export default function AmbientSound() {
-  const reduce = useReducedMotion();
   const [on, setOn] = useState(false);
   const [busy, setBusy] = useState(false);
 
@@ -93,23 +85,27 @@ export default function AmbientSound() {
       data-cursor-target
       aria-pressed={on}
       aria-label={on ? "Mute ambient sound" : "Play ambient sound"}
-      className="group fixed bottom-5 right-5 z-50 flex items-center gap-2.5 rounded-full border border-[var(--color-line)] bg-[color-mix(in_srgb,var(--color-ground)_62%,transparent)] px-3.5 py-2 backdrop-blur-md transition-colors duration-300 hover:border-[var(--color-line-strong)] sm:bottom-6 sm:right-6"
+      className="group fixed bottom-5 right-5 z-50 flex items-center gap-2.5 rounded-full border border-[var(--color-line-strong)] bg-[color-mix(in_srgb,var(--color-ground)_82%,transparent)] py-2.5 pl-3.5 pr-4 shadow-[0_10px_30px_-12px_rgba(0,0,0,0.7)] backdrop-blur-md transition-[border-color,background-color] duration-300 hover:border-[var(--color-ink)] sm:bottom-6 sm:right-6"
     >
-      <span
-        data-playing={on && !reduce ? "true" : "false"}
+      <HugeiconsIcon
+        icon={on ? VolumeHighIcon : VolumeOffIcon}
+        size={18}
+        strokeWidth={1.8}
         aria-hidden
-        className="eq flex h-3.5 items-end gap-[3px]"
+        className={`shrink-0 transition-colors duration-300 ${
+          on
+            ? "sound-live text-[var(--color-ink)]"
+            : "text-[var(--color-muted)] group-hover:text-[var(--color-ink)]"
+        }`}
+      />
+      <span
+        className={`text-[0.7rem] font-medium uppercase tracking-[0.14em] transition-colors duration-300 ${
+          on
+            ? "text-[var(--color-ink)]"
+            : "text-[var(--color-muted)] group-hover:text-[var(--color-ink)]"
+        }`}
       >
-        {BARS.map((b, i) => (
-          <span
-            key={i}
-            className="eq-bar h-full w-[2px] rounded-full bg-[var(--color-ink)]"
-            style={{ animationDuration: b.dur, animationDelay: b.delay }}
-          />
-        ))}
-      </span>
-      <span className="hidden text-[0.7rem] font-medium uppercase tracking-[0.14em] text-[var(--color-muted)] transition-colors duration-300 group-hover:text-[var(--color-ink)] sm:inline">
-        {on ? "Sound on" : "Sound"}
+        {on ? "Sound on" : "Sound off"}
       </span>
     </button>
   );
