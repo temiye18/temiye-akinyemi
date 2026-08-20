@@ -79,10 +79,12 @@ export default function Cursor() {
       <div
         ref={ringRef}
         data-hover="false"
+        style={{ willChange: "transform" }}
         className="absolute -left-4 -top-4 h-8 w-8 rounded-full border border-[var(--color-accent)] transition-[width,height,opacity,background-color] duration-300 ease-[var(--ease-out-expo)] data-[hover=true]:-left-6 data-[hover=true]:-top-6 data-[hover=true]:h-12 data-[hover=true]:w-12 data-[hover=true]:bg-[var(--color-accent-soft)]"
       />
       <div
         ref={dotRef}
+        style={{ willChange: "transform" }}
         className="absolute -left-[3px] -top-[3px] h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]"
       />
     </div>

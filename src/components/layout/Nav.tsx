@@ -22,6 +22,8 @@ import {
 import { nav, site } from "@/lib/content";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import Mode2D3DToggle from "@/components/ui/Mode2D3DToggle";
+import DashboardToggle from "@/components/ui/DashboardToggle";
+import { useUIMode } from "@/components/providers/UIMode";
 
 // section ids in document order; index 0 (hero) means "no link active"
 const SECTIONS = ["top", "work", "about", "capabilities", "experience", "contact"];
@@ -42,6 +44,7 @@ const NAV_ICONS: Record<string, typeof Menu01Icon> = {
 export default function Nav() {
   const reduce = useReducedMotion();
   const lenis = useLenis();
+  const { dashboard } = useUIMode();
   const [active, setActive] = useState(0);
   const [hovered, setHovered] = useState<number | null>(null);
   const [open, setOpen] = useState(false);
@@ -133,8 +136,10 @@ export default function Nav() {
             <span className="italic text-[var(--color-muted)]">.</span>
           </a>
 
-          {/* links — floating capsule with a tracking indicator */}
-          <div className={`${glass} hidden p-1.5 md:block`}>
+          {/* links — floating capsule with a tracking indicator (site mode only) */}
+          <div
+            className={`${glass} hidden p-1.5 ${dashboard ? "" : "md:block"}`}
+          >
             <ul ref={listRef} className="relative flex items-center">
               <motion.span
                 aria-hidden
@@ -184,9 +189,14 @@ export default function Nav() {
 
           {/* controls */}
           <div className="flex items-center gap-3">
-            <div className="hidden items-center lg:flex">
-              <Mode2D3DToggle />
+            <div className="hidden items-center sm:flex">
+              <DashboardToggle />
             </div>
+            {!dashboard && (
+              <div className="hidden items-center lg:flex">
+                <Mode2D3DToggle />
+              </div>
+            )}
             <div className="hidden items-center sm:flex">
               <ThemeToggle />
             </div>
@@ -261,9 +271,16 @@ export default function Nav() {
               ))}
             </ul>
 
-            <div className="mt-10 flex items-center justify-between">
-              <Mode2D3DToggle />
-              <ThemeToggle />
+            <div className="mt-10 flex flex-col gap-4">
+              {/* switching surface here also closes the menu, so the chosen
+                  surface is revealed instead of sitting under this overlay */}
+              <div onClick={() => setOpen(false)} className="w-fit">
+                <DashboardToggle />
+              </div>
+              <div className="flex items-center justify-between">
+                <Mode2D3DToggle />
+                <ThemeToggle />
+              </div>
             </div>
           </motion.div>
         )}

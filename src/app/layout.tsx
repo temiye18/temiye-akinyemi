@@ -4,6 +4,7 @@ import { ViewTransitions } from "next-view-transitions";
 import "./globals.css";
 import SmoothScroll from "@/components/providers/SmoothScroll";
 import ThreeDProvider from "@/components/providers/ThreeDMode";
+import UIModeProvider from "@/components/providers/UIMode";
 import Cursor from "@/components/ui/Cursor";
 import AmbientSound from "@/components/ui/AmbientSound";
 import WaveformOverlay from "@/components/ui/WaveformOverlay";
@@ -56,7 +57,7 @@ export default function RootLayout({
           {/* Set theme + view mode before first paint to avoid a flash. */}
           <script
             dangerouslySetInnerHTML={{
-              __html: `(function(){try{var t=localStorage.getItem('theme');if(t!=='light'&&t!=='dark')t='dark';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}try{var m=localStorage.getItem('view-mode');document.documentElement.setAttribute('data-view-mode',m==='3d'?'3d':'2d');}catch(e){document.documentElement.setAttribute('data-view-mode','2d');}})();`,
+              __html: `(function(){try{var t=localStorage.getItem('theme');if(t!=='light'&&t!=='dark')t='dark';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}try{var m=localStorage.getItem('view-mode');document.documentElement.setAttribute('data-view-mode',m==='3d'?'3d':'2d');}catch(e){document.documentElement.setAttribute('data-view-mode','2d');}try{var u=localStorage.getItem('ui-mode');document.documentElement.setAttribute('data-ui-mode',u==='dashboard'?'dashboard':'site');}catch(e){document.documentElement.setAttribute('data-ui-mode','site');}})();`,
             }}
           />
         </head>
@@ -72,8 +73,10 @@ export default function RootLayout({
           </a>
           <SmoothScroll>
             <ThreeDProvider>
-              <Preloader />
-              {children}
+              <UIModeProvider>
+                <Preloader />
+                {children}
+              </UIModeProvider>
             </ThreeDProvider>
           </SmoothScroll>
           <WaveformOverlay />

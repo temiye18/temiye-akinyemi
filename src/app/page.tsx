@@ -8,15 +8,17 @@ import Experience from "@/components/sections/Experience";
 import Contact from "@/components/sections/Contact";
 import TelemetryHUD from "@/components/layout/TelemetryHUD";
 import ScrollReveal from "@/components/motion/ScrollReveal";
+import Stage from "@/components/dashboard/Stage";
 
 export default function Home() {
   return (
     <>
       <Nav />
-      <TelemetryHUD />
-      <SpacePlane>
-        <Hero />
-        <SelectedWork />
+      <Stage>
+        <TelemetryHUD />
+        <SpacePlane>
+          <Hero />
+          <SelectedWork />
 
         {/* scroll-scrubbed manifesto — words fill from faint to ink */}
         <section className="border-t border-[var(--color-line)] px-6 py-36 sm:px-10 lg:px-16 lg:py-56">
@@ -28,11 +30,12 @@ export default function Home() {
           </div>
         </section>
 
-        <About />
-        <Capabilities />
-        <Experience />
-        <Contact />
-      </SpacePlane>
+          <About />
+          <Capabilities />
+          <Experience />
+          <Contact />
+        </SpacePlane>
+      </Stage>
     </>
   );
 }

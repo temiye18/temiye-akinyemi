@@ -173,6 +173,100 @@ h3 {
 }
 
 /* ------------------------------------------------------------------ *
+ * Dashboard ("Control Room") — an editorial contact-sheet bento. Hairline-
+ * framed panels on warm surface, varied densities, one panel per section. No
+ * drop-shadow boxes: the world prefers hairlines over cards. Single-column on
+ * phones (reading order), a 2-col deck on tablets with the identity and skill
+ * panels full-width, and a named asymmetric bento at desktop.
+ * ------------------------------------------------------------------ */
+.dash-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 640px) {
+  .dash-grid {
+    gap: 0.85rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .dash-identity,
+  .dash-capab {
+    grid-column: 1 / -1;
+  }
+}
+@media (min-width: 1024px) {
+  .dash-grid {
+    gap: 0.65rem;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-auto-rows: minmax(0, auto);
+    grid-template-areas:
+      "identity identity capab capab capab capab"
+      "identity identity about about work    work"
+      "exp      exp      exp   contact contact contact";
+  }
+  .dash-identity {
+    grid-area: identity;
+  }
+  .dash-capab {
+    grid-area: capab;
+  }
+  .dash-about {
+    grid-area: about;
+  }
+  .dash-work {
+    grid-area: work;
+  }
+  .dash-exp {
+    grid-area: exp;
+  }
+  .dash-contact {
+    grid-area: contact;
+  }
+}
+
+/* No-flash: under a persisted dashboard, the site root never paints before the
+   overlay mounts. In steady state the opaque overlay covers it anyway; on the
+   way back out the attribute flips to "site" and it reveals behind the fade. */
+:root[data-ui-mode="dashboard"] #site-root {
+  visibility: hidden;
+}
+:root[data-ui-mode="dashboard"] body {
+  overflow: hidden;
+}
+
+/* The panels wear the full glass look (tint, rim, specular sheen, elevation) but
+   drop the *live* backdrop-filter. Six viewport-scale blur surfaces sitting under
+   the moving custom cursor force a per-frame backdrop recompute that starves the
+   pointer loop and makes the cursor drag. The dashboard ground is essentially
+   flat, so a solid surface tint is visually identical and holds 60fps. */
+.dash-panel {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: color-mix(
+    in srgb,
+    var(--color-surface) 92%,
+    var(--color-ground)
+  ) !important;
+  /* Promote every panel to its own compositor layer. The full liquid-glass
+     elevation (restored below, and lovely in light mode) is then rasterized once
+     into this layer's texture; the hover color/opacity transitions on links and
+     buttons inside only dirty their own small rects, so the 34px-blur shadow is
+     never recomputed while the cursor moves. This is what keeps the elevation
+     AND the 60fps cursor at the same time. (will-change alone forces the layer in
+     Chromium and stays compatible with Motion's entrance transform.) */
+  will-change: transform;
+  contain: paint;
+}
+/* The sheen drops mix-blend-mode: screen. A blend layer must read and
+   re-composite its backdrop on every repaint underneath (each hover transition
+   during a sweep), which re-blurs the shadows and starves the cursor. A plain
+   overlay looks all but identical over this warm surface and costs nothing. */
+.dash-panel::before {
+  mix-blend-mode: normal;
+  opacity: 0.6;
+}
+
+/* ------------------------------------------------------------------ *
  * Liquid glass — a content-adaptive optical material.
  * Frosted, vibrancy-boosted backdrop (blur + saturate concentrates the light
  * behind it) with a bright top rim, a soft dark base for volume, a diagonal
