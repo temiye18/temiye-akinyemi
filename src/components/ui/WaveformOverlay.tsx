@@ -4,10 +4,19 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useReducedMotion } from "motion/react";
 import { ambientState } from "@/lib/ambientState";
 
-// how long the page must sit still (no scroll / input) before the visualizer
-// takes over, and any of these events dismiss it again
-const IDLE_MS = 3000;
-const ACTIVITY = ["scroll", "wheel", "touchstart", "keydown", "pointerdown"];
+// The visualizer is for genuine idleness (settled in to listen, or stepped
+// away), not merely "not scrolling" — reading is not scrolling but still
+// engaged, so pointer movement counts as activity and the wait is long enough
+// that a reading pause never triggers it. Any of these events also dismiss it.
+const IDLE_MS = 60000;
+const ACTIVITY = [
+  "scroll",
+  "wheel",
+  "touchstart",
+  "keydown",
+  "pointerdown",
+  "pointermove",
+];
 
 // three slow flow-lines that weave for depth. `s` is per-ms drift speed (small =
 // tranquil); amplitude breathes from `base` up to `base + react` with the music.

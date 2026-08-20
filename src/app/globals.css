@@ -172,6 +172,57 @@ h3 {
   }
 }
 
+/* ------------------------------------------------------------------ *
+ * Liquid glass — a content-adaptive optical material.
+ * Frosted, vibrancy-boosted backdrop (blur + saturate concentrates the light
+ * behind it) with a bright top rim, a soft dark base for volume, a diagonal
+ * specular sheen, and a floating elevation shadow. It adds no hue of its own:
+ * saturate() only amplifies the warm-monochrome content behind, so it stays on
+ * brand. Set the radius on the element (the sheen inherits it).
+ * ------------------------------------------------------------------ */
+.liquid-glass {
+  /* no `position` here: it would override `fixed`/`absolute` on adopters. The
+     sheen pseudo just needs *some* positioned ancestor — callers add `relative`
+     when the element is otherwise static. */
+  isolation: isolate;
+  background: color-mix(in srgb, var(--color-surface) 62%, transparent);
+  backdrop-filter: blur(14px) saturate(175%) brightness(1.07);
+  -webkit-backdrop-filter: blur(14px) saturate(175%) brightness(1.07);
+  border: 1px solid color-mix(in srgb, var(--color-ink) 16%, transparent);
+  box-shadow:
+    0 12px 34px -12px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 253, 246, 0.34),
+    inset 0 -10px 16px -13px rgba(0, 0, 0, 0.5);
+}
+.liquid-glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    130deg,
+    rgba(255, 253, 246, 0.26),
+    rgba(255, 253, 246, 0.07) 24%,
+    transparent 52%
+  );
+  mix-blend-mode: screen;
+}
+/* a touch brighter rim on interaction */
+.liquid-glass-interactive {
+  transition:
+    border-color 0.35s var(--ease-out-expo),
+    box-shadow 0.35s var(--ease-out-expo);
+}
+.liquid-glass-interactive:hover {
+  border-color: color-mix(in srgb, var(--color-ink) 26%, transparent);
+  box-shadow:
+    0 14px 38px -12px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 253, 246, 0.45),
+    inset 0 -10px 16px -13px rgba(0, 0, 0, 0.5);
+}
+
 /* Small label — a quiet sans, not a mono costume. */
 .eyebrow {
   font-family: var(--font-sans), system-ui, sans-serif;

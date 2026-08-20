@@ -42,7 +42,6 @@ const NAV_ICONS: Record<string, typeof Menu01Icon> = {
 export default function Nav() {
   const reduce = useReducedMotion();
   const lenis = useLenis();
-  const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState(0);
   const [hovered, setHovered] = useState<number | null>(null);
   const [open, setOpen] = useState(false);
@@ -59,13 +58,6 @@ export default function Nav() {
   const sLeft = useSpring(pillLeft, springCfg);
   const sWidth = useSpring(pillWidth, springCfg);
   const sOpacity = useSpring(pillOpacity, { stiffness: 300, damping: 30 });
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   // active section
   useEffect(() => {
@@ -107,7 +99,7 @@ export default function Nav() {
     pillLeft.set(er.left - lr.left);
     pillWidth.set(er.width);
     pillOpacity.set(1);
-  }, [target, scrolled, pillLeft, pillWidth, pillOpacity]);
+  }, [target, pillLeft, pillWidth, pillOpacity]);
 
   // lock scroll while the mobile menu is open
   useEffect(() => {
@@ -125,11 +117,7 @@ export default function Nav() {
     });
   };
 
-  const capsule =
-    "rounded-full border backdrop-blur-md transition-colors duration-500";
-  const capsuleTone = scrolled
-    ? "border-[var(--color-line-strong)] bg-[color-mix(in_srgb,var(--color-ground)_72%,transparent)]"
-    : "border-[var(--color-line)] bg-[color-mix(in_srgb,var(--color-ground)_45%,transparent)]";
+  const glass = "liquid-glass liquid-glass-interactive relative rounded-full";
 
   return (
     <>
@@ -146,7 +134,7 @@ export default function Nav() {
           </a>
 
           {/* links — floating capsule with a tracking indicator */}
-          <div className={`${capsule} ${capsuleTone} hidden p-1.5 md:block`}>
+          <div className={`${glass} hidden p-1.5 md:block`}>
             <ul ref={listRef} className="relative flex items-center">
               <motion.span
                 aria-hidden
@@ -196,10 +184,10 @@ export default function Nav() {
 
           {/* controls */}
           <div className="flex items-center gap-3">
-            <div className={`${capsule} ${capsuleTone} hidden items-center p-1 lg:flex`}>
+            <div className="hidden items-center lg:flex">
               <Mode2D3DToggle />
             </div>
-            <div className={`${capsule} ${capsuleTone} hidden items-center p-1 sm:flex`}>
+            <div className="hidden items-center sm:flex">
               <ThemeToggle />
             </div>
 
@@ -209,7 +197,7 @@ export default function Nav() {
               data-cursor-target
               onClick={() => setOpen(true)}
               aria-label="Open menu"
-              className={`${capsule} ${capsuleTone} grid h-10 w-10 place-items-center text-[var(--color-ink)] md:hidden`}
+              className={`${glass} grid h-10 w-10 place-items-center text-[var(--color-ink)] md:hidden`}
             >
               <HugeiconsIcon icon={Menu01Icon} size={18} strokeWidth={1.6} />
             </button>

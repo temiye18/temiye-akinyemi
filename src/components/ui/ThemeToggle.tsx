@@ -49,7 +49,7 @@ export default function ThemeToggle() {
       onClick={toggle}
       data-cursor-target
       aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
-      className="grid h-9 w-9 place-items-center rounded-full border border-[var(--color-line)] text-[var(--color-muted)] transition-colors duration-300 hover:border-[var(--color-line-strong)] hover:text-[var(--color-ink)]"
+      className="liquid-glass liquid-glass-interactive relative grid h-9 w-9 place-items-center rounded-full text-[var(--color-muted)] transition-colors duration-300 hover:text-[var(--color-ink)]"
     >
       {/* icon reflects the theme you'll switch TO */}
       {theme === "dark" ? (

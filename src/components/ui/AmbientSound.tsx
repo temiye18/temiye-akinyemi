@@ -85,7 +85,7 @@ export default function AmbientSound() {
       data-cursor-target
       aria-pressed={on}
       aria-label={on ? "Mute ambient sound" : "Play ambient sound"}
-      className="group fixed bottom-5 right-5 z-50 flex items-center gap-2.5 rounded-full border border-[var(--color-line-strong)] bg-[color-mix(in_srgb,var(--color-ground)_82%,transparent)] py-2.5 pl-3.5 pr-4 shadow-[0_10px_30px_-12px_rgba(0,0,0,0.7)] backdrop-blur-md transition-[border-color,background-color] duration-300 hover:border-[var(--color-ink)] sm:bottom-6 sm:right-6"
+      className="group liquid-glass liquid-glass-interactive fixed bottom-5 right-5 z-50 flex items-center gap-2.5 rounded-full py-2.5 pl-3.5 pr-4 sm:bottom-6 sm:right-6"
     >
       <HugeiconsIcon
         icon={on ? VolumeHighIcon : VolumeOffIcon}

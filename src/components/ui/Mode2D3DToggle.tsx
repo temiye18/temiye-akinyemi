@@ -15,7 +15,7 @@ export default function Mode2D3DToggle() {
     <div
       role="group"
       aria-label="View mode"
-      className="flex items-center rounded-full border border-[var(--color-line)] p-0.5"
+      className="liquid-glass liquid-glass-interactive relative flex items-center rounded-full p-0.5"
     >
       <button
         type="button"
