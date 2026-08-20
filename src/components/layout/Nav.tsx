@@ -192,11 +192,9 @@ export default function Nav() {
             <div className="hidden items-center sm:flex">
               <DashboardToggle />
             </div>
-            {!dashboard && (
-              <div className="hidden items-center lg:flex">
-                <Mode2D3DToggle />
-              </div>
-            )}
+            <div className="hidden items-center lg:flex">
+              <Mode2D3DToggle />
+            </div>
             <div className="hidden items-center sm:flex">
               <ThemeToggle />
             </div>

@@ -15,6 +15,8 @@ import {
   experience,
 } from "@/lib/content";
 import { useUIMode } from "@/components/providers/UIMode";
+import { useThreeD } from "@/components/providers/ThreeDMode";
+import { useSpaceOrbit } from "@/lib/useSpaceOrbit";
 import LocalTime from "@/components/ui/LocalTime";
 
 /* ------------------------------------------------------------------ *
@@ -58,10 +60,18 @@ const lineV: Variants = {
 
 export default function Dashboard() {
   const { setDashboard } = useUIMode();
+  const { enabled: threeD } = useThreeD();
   const lenis = useLenis();
   const reduce = useReducedMotion();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const planeRef = useRef<HTMLDivElement>(null);
   const [hasPhoto, setHasPhoto] = useState(true);
+
+  // 3D mode: the bento tilts as one plane over the flat dotted field, orbiting
+  // when idle — the same effect the site plane uses, so it feels identical here.
+  // The transform lives on the inner plane, NOT the scroll container, so the
+  // native scrollbar stays flat instead of tilting with it.
+  useSpaceOrbit(planeRef, threeD && !reduce, "center");
 
   // send focus into the overview so the keyboard path starts here
   useEffect(() => {
@@ -120,10 +130,11 @@ export default function Dashboard() {
         data-lenis-prevent
         className="relative h-full overflow-y-auto overflow-x-hidden overscroll-contain px-5 pb-8 pt-20 outline-none [-webkit-overflow-scrolling:touch] sm:px-8 sm:pt-24 lg:px-10 lg:pb-5 lg:pt-[4.75rem]"
       >
+        <div ref={planeRef} className="mx-auto w-full max-w-[1360px]">
         <motion.div
           variants={container}
           {...motionProps}
-          className="dash-grid mx-auto w-full max-w-[1360px]"
+          className="dash-grid w-full"
         >
           {/* ---------------------------------------------------------- *
            * Identity — the anchor panel, with the way back into the site.
@@ -137,11 +148,8 @@ export default function Dashboard() {
                   fill
                   sizes="(max-width: 1024px) 100vw, 34vw"
                   onError={() => setHasPhoto(false)}
-                  className="object-cover object-top opacity-95"
-                  style={{
-                    filter: "grayscale(1) contrast(1.02)",
-                    willChange: "transform",
-                  }}
+                  className="object-cover object-top"
+                  style={{ willChange: "transform" }}
                 />
               ) : (
                 <span
@@ -156,14 +164,14 @@ export default function Dashboard() {
                 className="pointer-events-none absolute inset-0"
                 style={{
                   background:
-                    "linear-gradient(to top, color-mix(in srgb, var(--color-ground) 94%, transparent), color-mix(in srgb, var(--color-ground) 30%, transparent) 52%, transparent 82%)",
+                    "linear-gradient(to top, color-mix(in srgb, var(--color-ground) 97%, transparent) 0%, color-mix(in srgb, var(--color-ground) 88%, transparent) 34%, color-mix(in srgb, var(--color-ground) 55%, transparent) 58%, transparent 88%)",
                 }}
               />
               <div className="relative p-5 sm:p-6">
                 <h2 className="font-[family-name:var(--font-display)] text-[1.75rem] font-medium leading-[1.05] tracking-tight text-[var(--color-ink)]">
                   {site.name}
                 </h2>
-                <p className="mt-3 max-w-[34ch] text-[0.9rem] leading-relaxed text-[var(--color-muted)]">
+                <p className="mt-3 max-w-[34ch] text-[0.9rem] leading-relaxed text-[var(--color-ink)]">
                   Software engineer building production web apps, and I care
                   about how each one{" "}
                   <span className="font-[family-name:var(--font-display)] italic text-[var(--color-ink)]">
@@ -176,7 +184,7 @@ export default function Dashboard() {
                   onClick={() => enterSite("#top")}
                   className="group/enter mt-5 inline-flex items-center gap-2 rounded-full border border-[var(--color-line-strong)] px-4 py-2 text-[0.72rem] font-medium uppercase tracking-[0.14em] text-[var(--color-ink)] transition-colors duration-300 hover:bg-[var(--color-ink)] hover:text-[var(--color-ground)]"
                 >
-                  Enter the site
+                  Learn more
                   <HugeiconsIcon
                     icon={ArrowRight01Icon}
                     size={15}
@@ -372,6 +380,7 @@ export default function Dashboard() {
             </div>
           </Panel>
         </motion.div>
+        </div>
       </div>
     </motion.section>
   );
