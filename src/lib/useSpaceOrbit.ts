@@ -18,6 +18,13 @@ export function useSpaceOrbit(
   ref: RefObject<HTMLElement | null>,
   active: boolean,
   origin: "viewport" | "center" = "viewport",
+  // "scene": the perspective lives on a parent (via the CSS `perspective`
+  // property) and the plane keeps `transform-style: preserve-3d`, so its child
+  // cards can extrude toward the camera on hover. The plane's own transform is
+  // then just the rotation. "inline" (default): perspective is baked into this
+  // element's transform, flattening its children (the site plane needs no
+  // extrusion).
+  mode: "inline" | "scene" = "inline",
 ) {
   useEffect(() => {
     const el = ref.current;
@@ -81,7 +88,9 @@ export function useSpaceOrbit(
       } else {
         el.style.transformOrigin = "50% 50%";
       }
-      el.style.transform = `perspective(1700px) rotateX(${rx.toFixed(3)}deg) rotateY(${ry.toFixed(3)}deg)`;
+      const rot = `rotateX(${rx.toFixed(3)}deg) rotateY(${ry.toFixed(3)}deg)`;
+      el.style.transform =
+        mode === "scene" ? rot : `perspective(1700px) ${rot}`;
 
       raf = requestAnimationFrame(loop);
     };
@@ -94,5 +103,5 @@ export function useSpaceOrbit(
       el.removeEventListener("scroll", onScroll);
       clear();
     };
-  }, [ref, active, origin]);
+  }, [ref, active, origin, mode]);
 }

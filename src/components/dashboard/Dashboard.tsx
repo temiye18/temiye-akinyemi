@@ -70,8 +70,10 @@ export default function Dashboard() {
   // 3D mode: the bento tilts as one plane over the flat dotted field, orbiting
   // when idle — the same effect the site plane uses, so it feels identical here.
   // The transform lives on the inner plane, NOT the scroll container, so the
-  // native scrollbar stays flat instead of tilting with it.
-  useSpaceOrbit(planeRef, threeD && !reduce, "center");
+  // native scrollbar stays flat instead of tilting with it. "scene" mode keeps
+  // the plane preserve-3d (perspective is on the scroll container) so a hovered
+  // card can extrude toward the camera out of the plane.
+  useSpaceOrbit(planeRef, threeD && !reduce, "center", "scene");
 
   // send focus into the overview so the keyboard path starts here
   useEffect(() => {
@@ -128,13 +130,16 @@ export default function Dashboard() {
         ref={scrollRef}
         tabIndex={-1}
         data-lenis-prevent
-        className="relative h-full overflow-y-auto overflow-x-hidden overscroll-contain px-5 pb-8 pt-20 outline-none [-webkit-overflow-scrolling:touch] sm:px-8 sm:pt-24 lg:px-10 lg:pb-5 lg:pt-[4.75rem]"
+        className="relative h-full overflow-y-auto overflow-x-hidden overscroll-contain px-5 pb-8 pt-20 outline-none [-webkit-overflow-scrolling:touch] [perspective-origin:50%_38%] [perspective:1700px] sm:px-8 sm:pt-24 lg:px-10 lg:pb-5 lg:pt-[4.75rem]"
       >
-        <div ref={planeRef} className="mx-auto w-full max-w-[1360px]">
+        <div
+          ref={planeRef}
+          className="mx-auto w-full max-w-[1360px] [transform-style:preserve-3d]"
+        >
         <motion.div
           variants={container}
           {...motionProps}
-          className="dash-grid w-full"
+          className="dash-grid w-full [transform-style:preserve-3d]"
         >
           {/* ---------------------------------------------------------- *
            * Identity — the anchor panel, with the way back into the site.
@@ -405,9 +410,16 @@ function Panel({
   onOpen: () => void;
   children: React.ReactNode;
 }) {
+  const reduce = useReducedMotion();
   return (
     <motion.section
       variants={panelV}
+      // Sci-fi hover: the card extrudes toward the camera along Z, protruding out
+      // of the plane (the scene's perspective + preserve-3d chain make it real
+      // depth, not a fake scale). A touch of lift rides along. TRANSFORM only, so
+      // it stays compositor-cheap and never fights the orbit, Lenis, or Motion.
+      whileHover={reduce ? undefined : { z: 78, y: -6 }}
+      transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
       className={`dash-${area} group/panel relative flex flex-col rounded-xl`}
     >
       {/* static elevation backing — its own compositor layer, never repainted */}
