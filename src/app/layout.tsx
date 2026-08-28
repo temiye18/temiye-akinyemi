@@ -1,5 +1,11 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Fraunces, Geist, Geist_Mono } from "next/font/google";
+import {
+  DEFAULT_DESCRIPTION,
+  DEFAULT_TITLE,
+  SITE_NAME,
+  SITE_URL,
+} from "@/lib/seo";
 import { ViewTransitions } from "next-view-transitions";
 import "./globals.css";
 import SmoothScroll from "@/components/providers/SmoothScroll";
@@ -30,19 +36,50 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://temiye.dev"),
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "Temiye Akinyemi, Software Engineer",
-    template: "%s",
+    default: DEFAULT_TITLE,
+    // Child pages set a short title; this appends the name for a consistent
+    // "<Page> · Temiye Akinyemi" shape. The homepage uses `default` untouched.
+    template: `%s · ${SITE_NAME}`,
   },
-  description:
-    "Temiye Akinyemi is a software engineer in Lagos building production web apps across healthcare, AI marketplaces, and consumer platforms.",
+  description: DEFAULT_DESCRIPTION,
+  applicationName: SITE_NAME,
+  authors: [{ name: SITE_NAME, url: SITE_URL }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
+  alternates: { canonical: "/" },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   openGraph: {
-    title: "Temiye Akinyemi, Software Engineer",
-    description:
-      "Software engineer building production web apps across healthcare, AI marketplaces, and consumer platforms.",
     type: "website",
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    title: DEFAULT_TITLE,
+    description: DEFAULT_DESCRIPTION,
+    locale: "en_US",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: DEFAULT_TITLE,
+    description: DEFAULT_DESCRIPTION,
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#0f0e0c" },
+    { media: "(prefers-color-scheme: light)", color: "#f3efe6" },
+  ],
 };
 
 export default function RootLayout({

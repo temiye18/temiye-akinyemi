@@ -9,6 +9,12 @@ import {
   Github01Icon,
 } from "@hugeicons/core-free-icons";
 import { projects, getProject } from "@/lib/content";
+import {
+  absoluteUrl,
+  breadcrumbJsonLd,
+  projectJsonLd,
+} from "@/lib/seo";
+import JsonLd from "@/components/seo/JsonLd";
 import MaskText from "@/components/motion/MaskText";
 import Reveal from "@/components/motion/Reveal";
 import LivePreview from "@/components/ui/LivePreview";
@@ -26,9 +32,26 @@ export async function generateMetadata({
   const { slug } = await params;
   const project = getProject(slug);
   if (!project) return {};
+
+  const path = `/work/${project.slug}`;
+  const social = `${project.title}, ${project.discipline}`;
+
   return {
-    title: `${project.title}, Temiye Akinyemi`,
+    title: project.title,
     description: project.blurb,
+    alternates: { canonical: path },
+    // og:image / twitter:image are supplied by the colocated opengraph-image.
+    openGraph: {
+      type: "article",
+      url: absoluteUrl(path),
+      title: social,
+      description: project.blurb,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: social,
+      description: project.blurb,
+    },
   };
 }
 
@@ -52,6 +75,15 @@ export default async function CasePage({
 
   return (
     <main className="px-6 pb-24 pt-28 sm:px-10 lg:px-16">
+      <JsonLd
+        data={[
+          breadcrumbJsonLd([
+            { name: "Home", url: "/" },
+            { name: project.title, url: `/work/${project.slug}` },
+          ]),
+          projectJsonLd(project),
+        ]}
+      />
       <div className="mx-auto w-full max-w-[1100px]">
         <Reveal y={12}>
           <Link

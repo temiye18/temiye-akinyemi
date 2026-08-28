@@ -9,10 +9,13 @@ import Contact from "@/components/sections/Contact";
 import TelemetryHUD from "@/components/layout/TelemetryHUD";
 import ScrollReveal from "@/components/motion/ScrollReveal";
 import Stage from "@/components/dashboard/Stage";
+import JsonLd from "@/components/seo/JsonLd";
+import { personJsonLd, websiteJsonLd } from "@/lib/seo";
 
 export default function Home() {
   return (
     <>
+      <JsonLd data={[personJsonLd(), websiteJsonLd()]} />
       <Nav />
       <Stage>
         <TelemetryHUD />
