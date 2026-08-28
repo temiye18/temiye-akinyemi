@@ -7,6 +7,8 @@ import {
   SITE_URL,
 } from "@/lib/seo";
 import { ViewTransitions } from "next-view-transitions";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import SmoothScroll from "@/components/providers/SmoothScroll";
 import ThreeDProvider from "@/components/providers/ThreeDMode";
@@ -119,6 +121,8 @@ export default function RootLayout({
           <WaveformOverlay />
           <Cursor />
           <AmbientSound />
+          <Analytics />
+          <SpeedInsights />
         </body>
       </html>
     </ViewTransitions>
