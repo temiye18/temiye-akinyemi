@@ -11,6 +11,7 @@ import { useMediaQuery } from "@/lib/useMediaQuery";
  */
 export default function Cursor() {
   const enabled = useMediaQuery("(hover: hover) and (pointer: fine)");
+  const rootRef = useRef<HTMLDivElement>(null);
   const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
 
@@ -26,9 +27,10 @@ export default function Cursor() {
   // Wire pointer tracking only once the nodes are actually in the DOM.
   useEffect(() => {
     if (!enabled) return;
+    const root = rootRef.current;
     const dot = dotRef.current;
     const ring = ringRef.current;
-    if (!dot || !ring) return;
+    if (!root || !dot || !ring) return;
 
     const reduce = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
@@ -39,6 +41,7 @@ export default function Cursor() {
     let rx = tx;
     let ry = ty;
     let hovering = false;
+    let inverse = false;
     let raf = 0;
 
     const isTarget = (el: Element | null) =>
@@ -52,6 +55,14 @@ export default function Cursor() {
       if (nextHover !== hovering) {
         hovering = nextHover;
         ring.dataset.hover = hovering ? "true" : "false";
+      }
+      // Over a plane set in the other theme (the dashboard's Contact panel),
+      // the ink cursor would vanish into it: take that plane's ink instead.
+      const nextInverse = !!(e.target as Element | null)?.closest?.(".plane-inverse");
+      if (nextInverse !== inverse) {
+        inverse = nextInverse;
+        if (inverse) root.dataset.inverse = "";
+        else delete root.dataset.inverse;
       }
       if (reduce) ring.style.transform = `translate(${tx}px, ${ty}px)`;
     };
@@ -75,17 +86,17 @@ export default function Cursor() {
   if (!enabled) return null;
 
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 z-[9999]">
+    <div ref={rootRef} aria-hidden className="cursor-layer pointer-events-none fixed inset-0 z-[9999]">
       <div
         ref={ringRef}
         data-hover="false"
         style={{ willChange: "transform" }}
-        className="absolute -left-4 -top-4 h-8 w-8 rounded-full border border-[var(--color-accent)] transition-[width,height,opacity,background-color] duration-300 ease-[var(--ease-out-expo)] data-[hover=true]:-left-6 data-[hover=true]:-top-6 data-[hover=true]:h-12 data-[hover=true]:w-12 data-[hover=true]:bg-[var(--color-accent-soft)]"
+        className="absolute -left-4 -top-4 h-8 w-8 rounded-full border border-[var(--color-accent)] transition-[width,height,opacity,background-color,border-color] duration-300 ease-[var(--ease-out-expo)] data-[hover=true]:-left-6 data-[hover=true]:-top-6 data-[hover=true]:h-12 data-[hover=true]:w-12 data-[hover=true]:bg-[var(--color-accent-soft)]"
       />
       <div
         ref={dotRef}
         style={{ willChange: "transform" }}
-        className="absolute -left-[3px] -top-[3px] h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]"
+        className="absolute -left-[3px] -top-[3px] h-1.5 w-1.5 rounded-full bg-[var(--color-accent)] transition-[background-color] duration-300"
       />
     </div>
   );

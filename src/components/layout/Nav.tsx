@@ -42,7 +42,7 @@ export default function Nav() {
         {/* soft scrim so scrolled content fades out before it meets the nav */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-28 bg-[linear-gradient(to_bottom,var(--color-ground)_48%,color-mix(in_srgb,var(--color-ground)_62%,transparent)_72%,transparent)]"
+          className="nav-scrim pointer-events-none absolute inset-x-0 top-0 -z-10 h-28 bg-[linear-gradient(to_bottom,var(--color-ground)_48%,color-mix(in_srgb,var(--color-ground)_62%,transparent)_72%,transparent)]"
         />
         <nav
           aria-label="Primary"

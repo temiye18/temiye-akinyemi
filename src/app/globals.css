@@ -198,56 +198,12 @@ dd {
 }
 
 /* ------------------------------------------------------------------ *
- * Dashboard ("Control Room") — an editorial contact-sheet bento. Hairline-
- * framed panels on warm surface, varied densities, one panel per section. No
- * drop-shadow boxes: the world prefers hairlines over cards. Single-column on
- * phones (reading order), a 2-col deck on tablets with the identity and skill
- * panels full-width, and a named asymmetric bento at desktop.
+ * Dashboard ("The House"). One room partitioned by sliding planes: a fixed
+ * wall, and five panels on one track that slide open over each other. Tonal
+ * planes joined by hairline joints, the moving edge marked in ink, one solid
+ * plane set in the other theme. Every slide is a transform written by
+ * Dashboard.tsx; nothing here animates layout, shadow or filters.
  * ------------------------------------------------------------------ */
-.dash-grid {
-  display: grid;
-  gap: 0.75rem;
-  grid-template-columns: minmax(0, 1fr);
-}
-@media (min-width: 640px) {
-  .dash-grid {
-    gap: 0.85rem;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .dash-identity,
-  .dash-capab {
-    grid-column: 1 / -1;
-  }
-}
-@media (min-width: 1024px) {
-  .dash-grid {
-    gap: 0.65rem;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    grid-auto-rows: minmax(0, auto);
-    grid-template-areas:
-      "identity identity capab capab capab capab"
-      "identity identity about about work    work"
-      "exp      exp      exp   contact contact contact";
-  }
-  .dash-identity {
-    grid-area: identity;
-  }
-  .dash-capab {
-    grid-area: capab;
-  }
-  .dash-about {
-    grid-area: about;
-  }
-  .dash-work {
-    grid-area: work;
-  }
-  .dash-exp {
-    grid-area: exp;
-  }
-  .dash-contact {
-    grid-area: contact;
-  }
-}
 
 /* No-flash: under a persisted dashboard, the site root never paints before the
    overlay mounts. In steady state the opaque overlay covers it anyway; on the
@@ -259,87 +215,326 @@ dd {
   overflow: hidden;
 }
 
-/* The panels wear the full glass look (tint, rim, specular sheen, elevation) but
-   drop the *live* backdrop-filter. Six viewport-scale blur surfaces sitting under
-   the moving custom cursor force a per-frame backdrop recompute that starves the
-   pointer loop and makes the cursor drag. The dashboard ground is essentially
-   flat, so a solid surface tint is visually identical and holds 60fps. */
-.dash-panel {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  background: color-mix(
-    in srgb,
-    var(--color-surface) 92%,
-    var(--color-ground)
-  ) !important;
-  /* Promote every panel to its own compositor layer. The full liquid-glass
-     elevation (restored below, and lovely in light mode) is then rasterized once
-     into this layer's texture; the hover color/opacity transitions on links and
-     buttons inside only dirty their own small rects, so the 34px-blur shadow is
-     never recomputed while the cursor moves. This is what keeps the elevation
-     AND the 60fps cursor at the same time. (will-change alone forces the layer in
-     Chromium and stays compatible with Motion's entrance transform.) */
-  will-change: transform;
-  contain: paint;
-}
-/* The sheen drops mix-blend-mode: screen. A blend layer must read and
-   re-composite its backdrop on every repaint underneath (each hover transition
-   during a sweep), which re-blurs the shadows and starves the cursor. A plain
-   overlay looks all but identical over this warm surface and costs nothing. */
-.dash-panel::before {
-  mix-blend-mode: normal;
-  opacity: 0.6;
+/* On desktop the house never scrolls, so the nav's scroll scrim has nothing
+   to fade and would only stain the top of the planes. Phones scroll the house
+   under the nav, and keep it. */
+@media (min-width: 1024px) {
+  :root[data-ui-mode="dashboard"] .nav-scrim {
+    opacity: 0;
+  }
 }
 
-/* ------------------------------------------------------------------ *
- * Liquid glass — a content-adaptive optical material.
- * Frosted, vibrancy-boosted backdrop (blur + saturate concentrates the light
- * behind it) with a bright top rim, a soft dark base for volume, a diagonal
- * specular sheen, and a floating elevation shadow. It adds no hue of its own:
- * saturate() only amplifies the warm-monochrome content behind, so it stays on
- * brand. Set the radius on the element (the sheen inherits it).
- * ------------------------------------------------------------------ */
-.liquid-glass {
-  /* no `position` here: it would override `fixed`/`absolute` on adopters. The
-     sheen pseudo just needs *some* positioned ancestor — callers add `relative`
-     when the element is otherwise static. */
-  isolation: isolate;
-  background: color-mix(in srgb, var(--color-surface) 62%, transparent);
-  backdrop-filter: blur(14px) saturate(175%) brightness(1.07);
-  -webkit-backdrop-filter: blur(14px) saturate(175%) brightness(1.07);
-  border: 1px solid color-mix(in srgb, var(--color-ink) 16%, transparent);
-  box-shadow:
-    0 12px 34px -12px rgba(0, 0, 0, 0.55),
-    inset 0 1px 0 rgba(255, 253, 246, 0.34),
-    inset 0 -10px 16px -13px rgba(0, 0, 0, 0.5);
+.house {
+  --door-shadow: rgba(0, 0, 0, 0.6);
+  /* a third plane tone, local to the house: the planes need more than two
+     steps to read as a composition and not as cards */
+  --house-surface-3: #26221b;
 }
-.liquid-glass::before {
+:root[data-theme="light"] .house {
+  --door-shadow: rgba(28, 24, 18, 0.22);
+  --house-surface-3: #e0d8c8;
+}
+.house-door[data-tone="surface-3"],
+.house-mini[data-tone="surface-3"] {
+  --door-bg: var(--house-surface-3);
+}
+.house-door[data-tone="surface"],
+.house-mini[data-tone="surface"] {
+  --door-bg: var(--color-surface);
+}
+.house-door[data-tone="surface-2"],
+.house-mini[data-tone="surface-2"] {
+  --door-bg: var(--color-surface-2);
+}
+.house-mini {
+  top: 0;
+  background: var(--door-bg);
+  box-shadow: -6px 0 10px -8px var(--door-shadow);
+}
+
+/* The inverse plane: the one solid plane in the house, set in the other
+   theme's tokens so everything inside it (links, the email actions) reads
+   correctly without a second set of components. */
+.plane-inverse {
+  --color-ground: #f3efe6;
+  --color-surface: #fbf9f3;
+  --color-surface-2: #eae3d6;
+  --color-line: rgba(28, 24, 18, 0.14);
+  --color-line-strong: rgba(28, 24, 18, 0.26);
+  --color-ink: #1b1813;
+  --color-muted: #55503f;
+  --color-faint: #6f695b;
+  --door-bg: #f2eee4;
+  color: var(--color-ink);
+}
+:root[data-theme="light"] .plane-inverse {
+  --color-ground: #0f0e0c;
+  --color-surface: #161410;
+  --color-surface-2: #1e1b15;
+  --color-line: rgba(240, 236, 228, 0.12);
+  --color-line-strong: rgba(240, 236, 228, 0.24);
+  --color-ink: #f2eee4;
+  --color-muted: #aea798;
+  --color-faint: #8e8778;
+  --door-bg: #1b1813;
+}
+
+.house-door-inner {
+  background: var(--door-bg);
+}
+/* the custom cursor over the inverse plane takes that plane's ink */
+.cursor-layer[data-inverse] {
+  --color-accent: #1b1813;
+  --color-accent-soft: rgba(28, 24, 18, 0.08);
+}
+:root[data-theme="light"] .cursor-layer[data-inverse] {
+  --color-accent: #f2eee4;
+  --color-accent-soft: rgba(240, 236, 228, 0.1);
+}
+/* no infinite animation anywhere in the house: a looping ping repaints every
+   frame at rest and is exactly what made the cursor drag here before */
+.house-still .signal-ring {
+  animation: none;
+  opacity: 0;
+  /* and no layer hint: composited leftovers inside the tilted plane each
+     force an offscreen pass per frame in 3D */
+  will-change: auto;
+}
+
+/* Desktop: the panels hang on the track. Each is the room's width less the
+   other four spines; its x is written per frame from one track position. */
+@media (min-width: 1024px) {
+  .house-jamb {
+    position: absolute;
+    top: -1px;
+    bottom: -1px;
+    left: 100%;
+    z-index: 20;
+    width: 100vw;
+    border-left: 1px solid var(--color-line-strong);
+    background: var(--color-ground);
+  }
+  .house-door {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: calc(100% - 4 * var(--spine));
+    will-change: transform;
+  }
+  .house[data-tilt] .house-door {
+    will-change: auto;
+  }
+  .house-door-inner {
+    height: 100%;
+    border-left: 1px solid var(--color-line-strong);
+    /* the plane casts onto the one it slides over; static, so it rasterises
+       once into the panel's own layer and never repaints while it moves */
+    box-shadow: -22px 0 24px -22px var(--door-shadow);
+    transition: translate 0.55s var(--ease-out-expo);
+  }
+  /* the first panel never slides over another, and unclipped its shadow
+     would fall on the wall */
+  .house-door:nth-child(2) > .house-door-inner {
+    box-shadow: none;
+  }
+  .house-spine {
+    cursor: grab;
+  }
+  .house-spine:active {
+    cursor: grabbing;
+  }
+  /* a closed panel gives a little when you reach for its edge */
+  @media (hover: hover) and (pointer: fine) {
+    .house-door[data-side="closed"]:has(.house-spine:hover) > .house-door-inner {
+      translate: -12px 0;
+    }
+    .house-spine:hover .lean-roman {
+      color: var(--color-ink);
+    }
+  }
+  /* Every panel carries its room while it travels (the track moves real
+     rooms, not blank sheets); the arriving room settles into place as it
+     lands. An animation, not a transition: it plays when data-open starts to
+     match and leaves nothing behind once done. */
+  .house-door[data-open] .house-body > * {
+    animation: house-room-in 0.8s var(--ease-out-expo) backwards;
+    animation-delay: calc(var(--reveal-delay, 0s) + var(--i, 0) * 70ms);
+  }
+  /* the structure reads as a frame: heavier joints where planes meet */
+  .house-door-inner {
+    border-left-width: 2px;
+  }
+  /* Work: the selection plane slides behind the rows, the detail planes
+     slide on a vertical track */
+  .work-sel {
+    height: 25%;
+    background: var(--house-surface-3);
+    transform: translateY(calc(var(--sel) * 100%));
+    transition: transform 0.55s var(--ease-in-out-quart);
+  }
+  .work-track {
+    transform: translateY(calc(var(--sel) * -100%));
+    transition: transform 0.7s var(--ease-in-out-quart);
+  }
+}
+
+/* Phones and tablets: the panels become sheets; one shows at a time and
+   slides in from the side it was called from. */
+@media (max-width: 1023.98px) {
+  .house-door:not([data-active]) {
+    display: none;
+  }
+  .house-door {
+    animation: house-sheet-in 0.55s var(--ease-out-expo);
+  }
+  .house-door-inner {
+    touch-action: pan-y;
+  }
+  .work-sel {
+    display: none;
+  }
+}
+@keyframes house-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateX(calc(var(--dir, 1) * 28px));
+  }
+}
+
+/* the wall assembles once, when the dashboard opens */
+.house-rise {
+  /* backwards, not both: a finished animation that still fills keeps its
+     element on its own layer for the life of the page */
+  animation: house-rise 0.8s var(--ease-out-expo) backwards;
+  animation-delay: calc(0.08s + var(--i, 0) * 80ms);
+}
+@keyframes house-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+@keyframes house-room-in {
+  from {
+    opacity: 0.25;
+    transform: translateY(10px);
+  }
+}
+/* square corners throughout, including the shared email actions */
+.house-email button {
+  border-radius: 0;
+}
+
+/* Roman and italic crossfade in one grid cell, so the word never moves (the
+   same device as the nav's current section). */
+.lean {
+  display: grid;
+}
+.lean > * {
+  grid-area: 1 / 1;
+  transition: opacity 0.35s var(--ease-out-expo);
+}
+.lean > .lean-italic,
+.lean[data-on] > .lean-roman {
+  opacity: 0;
+}
+.lean[data-on] > .lean-italic {
+  opacity: 1;
+}
+
+/* Buttons are planes with an ink end-cap, the moving edge in miniature. On
+   hover the ink slides across from the cap. */
+.house-btn {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+  min-height: 2.9rem;
+  padding: 0 1.4rem 0 1rem;
+  overflow: hidden;
+  border: 1px solid var(--color-line-strong);
+  color: var(--color-ink);
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: color 0.45s var(--ease-out-expo);
+}
+.house-btn::before {
   content: "";
   position: absolute;
   inset: 0;
   z-index: -1;
-  border-radius: inherit;
-  pointer-events: none;
-  background: linear-gradient(
-    130deg,
-    rgba(255, 253, 246, 0.26),
-    rgba(255, 253, 246, 0.07) 24%,
-    transparent 52%
-  );
-  mix-blend-mode: screen;
+  background: var(--color-ink);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.55s var(--ease-out-expo);
 }
-/* a touch brighter rim on interaction */
-.liquid-glass-interactive {
-  transition:
-    border-color 0.35s var(--ease-out-expo),
-    box-shadow 0.35s var(--ease-out-expo);
+.house-btn::after {
+  content: "";
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  bottom: -1px;
+  width: 6px;
+  background: var(--color-ink);
 }
-.liquid-glass-interactive:hover {
-  border-color: color-mix(in srgb, var(--color-ink) 26%, transparent);
-  box-shadow:
-    0 14px 38px -12px rgba(0, 0, 0, 0.6),
-    inset 0 1px 0 rgba(255, 253, 246, 0.45),
-    inset 0 -10px 16px -13px rgba(0, 0, 0, 0.5);
+.house-btn[data-variant="solid"] {
+  border-color: var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-ground);
+}
+.house-btn[data-variant="solid"]::before {
+  background: var(--color-ground);
+}
+.house-btn[data-variant="solid"]::after {
+  background: var(--color-muted);
+}
+@media (hover: hover) {
+  .house-btn:hover {
+    color: var(--color-ground);
+  }
+  .house-btn:hover::before {
+    transform: scaleX(1);
+  }
+  .house-btn[data-variant="solid"]:hover {
+    color: var(--color-ink);
+  }
+}
+.house-link {
+  transition: color 0.3s var(--ease-out-expo);
+}
+@media (hover: hover) {
+  .house-link:hover {
+    color: var(--color-ink);
+  }
+}
+.house :focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
+.house-spine:focus-visible {
+  outline-offset: -4px;
+}
+.house-rail {
+  scrollbar-width: none;
+}
+.house-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line-strong) transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .house-rise,
+  .house-door,
+  .house-door-inner,
+  .house-door .house-body > *,
+  .work-sel,
+  .work-track {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 
 /* ------------------------------------------------------------------ *

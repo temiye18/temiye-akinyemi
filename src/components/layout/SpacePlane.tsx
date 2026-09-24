@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useReducedMotion } from "motion/react";
 import { useThreeD } from "@/components/providers/ThreeDMode";
+import { useUIMode } from "@/components/providers/UIMode";
 import { ScrollTrigger } from "@/lib/gsap";
 import { useSpaceOrbit } from "@/lib/useSpaceOrbit";
 
@@ -26,10 +27,12 @@ export default function SpacePlane({
   children: React.ReactNode;
 }) {
   const { enabled } = useThreeD();
+  const { dashboard } = useUIMode();
   const reduce = useReducedMotion();
   const ref = useRef<HTMLElement>(null);
 
-  useSpaceOrbit(ref, enabled && !reduce, "viewport");
+  // the page's orbit rests while the dashboard (which has its own) covers it
+  useSpaceOrbit(ref, enabled && !reduce && !dashboard, "viewport");
 
   // Let the gallery rebuild (pin on/off) then re-measure every trigger.
   useEffect(() => {
