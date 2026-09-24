@@ -119,16 +119,24 @@ dd {
   text-wrap: pretty;
 }
 
-/* Hero glass — while the WebGL pane is live it paints the headline itself, so
-   the DOM <h1> keeps its layout, semantics and selection but drops its ink.
-   Colour is left intact (the GL layer reads it); only the fill goes clear. */
-[data-glass-text][data-glass="on"],
-[data-glass-text][data-glass="on"] * {
-  -webkit-text-fill-color: transparent;
+/* Hero intro: the name waits soft and slightly forward while the preloader
+   runs, then racks into focus as the light strikes and the camera dollies in.
+   Applied to the name's wrapper so the glint layer moves with the type. */
+[data-hero-intro="pending"] {
+  filter: blur(14px);
+  opacity: 0.2;
+  transform: scale(1.03);
+  transform-origin: 0% 60%;
 }
-[data-glass-text][data-glass="on"] ::selection,
-[data-glass-text][data-glass="on"]::selection {
-  -webkit-text-fill-color: var(--color-ground);
+[data-hero-intro="play"] {
+  filter: blur(0);
+  opacity: 1;
+  transform: none;
+  transform-origin: 0% 60%;
+  transition:
+    filter 1.5s var(--ease-out-expo) 0.55s,
+    opacity 1.3s var(--ease-out-expo) 0.4s,
+    transform 2.6s var(--ease-out-expo) 0.2s;
 }
 
 /* Signal graphic — emanating pings for projects with no live site. */
@@ -304,7 +312,7 @@ dd {
 /* ------------------------------------------------------------------ *
  * Nav — one quiet instrument (see components/nav/*)
  * Everything here moves on transform / opacity / clip-path / stroke-dash.
- * No live backdrop blur (the deck floats over the animating hero glass) and
+ * No live backdrop blur (the deck floats over the animating hero) and
  * no animated box-shadow (a measured cursor-jank source on this site).
  * ------------------------------------------------------------------ */
 

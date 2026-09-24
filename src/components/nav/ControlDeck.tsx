@@ -127,7 +127,7 @@ export function SoundSwitch() {
 
 /**
  * The deck: every preference in one enamel capsule (no live backdrop blur: it
- * floats over the animating hero glass and would re-blur every frame), led by
+ * floats over the animating hero and would re-blur every frame), led by
  * the command-menu trigger.
  */
 export default function ControlDeck({

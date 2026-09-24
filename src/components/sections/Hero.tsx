@@ -12,8 +12,7 @@ export default function Hero() {
       id="top"
       className="relative flex min-h-[100svh] flex-col overflow-hidden px-6 pb-20 pt-28 sm:px-10 lg:px-16"
     >
-      {/* Fogged glass over a warm cursor-reactive field. The headline below is
-          painted into it; the rest of the copy sits crisp on the glass. */}
+      {/* The room and its beam of light. The name below stands in it, crisp. */}
       <div aria-hidden className="absolute inset-0 -z-10">
         <HeroBackdrop />
       </div>
@@ -21,7 +20,7 @@ export default function Hero() {
       <ScrollFade className="mx-auto my-auto w-full max-w-[1360px]">
         <div className="relative w-fit">
           <h1
-            data-glass-text
+            data-hero-name
             className="text-[clamp(2.5rem,8vw,7rem)] font-medium leading-[0.96] tracking-[-0.035em]"
           >
             <span className="block">{site.name},</span>

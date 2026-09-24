@@ -18,12 +18,12 @@ export default function Wordmark({ forceExpanded = false }: { forceExpanded?: bo
   // pages without the hero (a case study) show the full name from the start
   const hasHero = useSyncExternalStore(
     () => () => {},
-    () => !!document.querySelector("[data-glass-text]"),
+    () => !!document.querySelector("[data-hero-name]"),
     () => true,
   );
 
   useEffect(() => {
-    const hero = document.querySelector("[data-glass-text]");
+    const hero = document.querySelector("[data-hero-name]");
     if (!hero) return;
     const io = new IntersectionObserver(([e]) => setHeroVisible(e.isIntersecting), {
       rootMargin: "-72px 0px 0px 0px",

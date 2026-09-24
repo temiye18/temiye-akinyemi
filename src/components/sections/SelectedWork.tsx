@@ -75,12 +75,39 @@ export default function SelectedWork() {
 
   // Scrolling moves rows under a still cursor without any pointer events, so
   // the preview would strand over the next section. Re-resolve which row (if
-  // any) sits under the last pointer position on every scroll frame.
+  // any) sits under the last pointer on each scroll frame, by arithmetic
+  // against row geometry cached on resize: a hit-test like elementFromPoint
+  // here would force a full layout every frame of every smooth scroll.
   useEffect(() => {
     if (!fine) return;
+    const list = listRef.current;
+    if (!list) return;
     let px = -1;
     let py = -1;
     let raf = 0;
+    let left = 0;
+    let right = 0;
+    let rows: { top: number; bottom: number }[] = [];
+    const docOffset = (el: HTMLElement) => {
+      let x = 0;
+      let y = 0;
+      let node: HTMLElement | null = el;
+      while (node) {
+        x += node.offsetLeft;
+        y += node.offsetTop;
+        node = node.offsetParent as HTMLElement | null;
+      }
+      return { x, y };
+    };
+    const measure = () => {
+      const o = docOffset(list);
+      left = o.x;
+      right = o.x + list.offsetWidth;
+      rows = Array.from(list.querySelectorAll<HTMLElement>("[data-row]")).map((r) => {
+        const top = docOffset(r).y;
+        return { top, bottom: top + r.offsetHeight };
+      });
+    };
     const onMove = (e: PointerEvent) => {
       px = e.clientX;
       py = e.clientY;
@@ -88,9 +115,8 @@ export default function SelectedWork() {
     const resolve = () => {
       raf = 0;
       if (px < 0) return;
-      const row = document.elementFromPoint(px, py)?.closest<HTMLElement>("[data-row]");
-      const rows = listRef.current ? Array.from(listRef.current.querySelectorAll<HTMLElement>("[data-row]")) : [];
-      const i = row ? rows.indexOf(row) : -1;
+      const y = py + window.scrollY;
+      const i = px >= left && px <= right ? rows.findIndex((r) => y >= r.top && y < r.bottom) : -1;
       setActive((prev) => {
         const next = i >= 0 ? i : null;
         return prev === next ? prev : next;
@@ -99,10 +125,14 @@ export default function SelectedWork() {
     const onScroll = () => {
       if (!raf) raf = requestAnimationFrame(resolve);
     };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(document.body);
     window.addEventListener("pointermove", onMove, { passive: true });
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
       cancelAnimationFrame(raf);
+      ro.disconnect();
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("scroll", onScroll);
     };
