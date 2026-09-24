@@ -551,6 +551,7 @@ export default function BeamField() {
     // ---- frame ------------------------------------------------------------------
     let raf = 0;
     let running = true;
+    let disposed = false;
     let last = performance.now();
     const t0 = last;
     let frameAcc = 0;
@@ -652,13 +653,15 @@ export default function BeamField() {
       raf = requestAnimationFrame(loop);
     };
 
+    // measure even when paused at birth (a load straight into the dashboard),
+    // so the loop can pick up cleanly the moment the site is back on stage
     const start = async () => {
       await document.fonts?.ready;
-      if (!running) return;
+      if (disposed) return;
       measure();
       aim.x = W * 0.02;
       aim.y = H * 0.95;
-      raf = requestAnimationFrame(loop);
+      if (running) raf = requestAnimationFrame(loop);
     };
     start();
 
@@ -671,28 +674,42 @@ export default function BeamField() {
     // The top ~112px sits under the nav's ground-coloured fade, so a hero that
     // only shows there is invisible: stop rendering (this is what used to keep
     // the shot running, unseen, all the way to the Work section).
+    // Nor while the dashboard covers the site: the hero stays mounted (and
+    // "intersecting") under it, and a WebGL frame nobody sees costs the
+    // dashboard its own frames.
+    let inView = true;
+    const onStage = () => document.documentElement.dataset.uiMode !== "dashboard";
+    const gate = () => {
+      if (disposed) return;
+      const was = running;
+      running = inView && onStage();
+      if (running && !was) {
+        last = performance.now();
+        frameAcc = 0;
+        frameN = 0;
+        raf = requestAnimationFrame(loop);
+      }
+    };
     const io = new IntersectionObserver(
       ([entry]) => {
-        const was = running;
-        running = entry.isIntersecting;
-        if (running && !was) {
-          last = performance.now();
-          frameAcc = 0;
-          frameN = 0;
-          raf = requestAnimationFrame(loop);
-        }
+        inView = entry.isIntersecting;
+        gate();
       },
       { rootMargin: "-112px 0px 0px 0px" },
     );
     io.observe(host);
+    const stage = new MutationObserver(gate);
+    stage.observe(document.documentElement, { attributes: true, attributeFilter: ["data-ui-mode"] });
 
     return () => {
+      disposed = true;
       running = false;
       cancelAnimationFrame(raf);
       window.clearTimeout(introFallback);
       mo.disconnect();
       ro.disconnect();
       io.disconnect();
+      stage.disconnect();
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("touchmove", onTouch);
       window.removeEventListener("preloader:done", startIntro);
