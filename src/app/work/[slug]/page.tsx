@@ -102,20 +102,17 @@ export default async function CasePage({
         </Reveal>
 
         <header className="mt-12 border-b border-[var(--color-line)] pb-12">
-          <Reveal className="mb-6" y={12}>
-            <p className="eyebrow flex items-center gap-3 text-[var(--color-faint)]">
-              <span>{project.index}</span>
-              <span className="h-px w-8 bg-[var(--color-line-strong)]" />
-              {project.discipline}
-            </p>
-          </Reveal>
-
           <h1
             style={{ viewTransitionName: `title-${project.slug}` }}
             className="text-[clamp(2.75rem,10vw,7rem)] font-medium leading-[0.95] tracking-[-0.02em]"
           >
             {project.title}
           </h1>
+          <Reveal delay={0.08} y={10}>
+            <p className="mt-5 font-[family-name:var(--font-display)] text-[clamp(1.25rem,2.4vw,1.9rem)] italic leading-snug text-[var(--color-muted)]">
+              {project.discipline}
+            </p>
+          </Reveal>
 
           <dl className="mt-10 grid grid-cols-2 gap-6 sm:grid-cols-4">
             {[
@@ -173,18 +170,24 @@ export default async function CasePage({
         </header>
 
         {/* Live landing-page preview when there's a URL; otherwise a bespoke
-            graphic for projects with no public site. */}
-        <Reveal className="mt-12">
+            graphic for projects with no public site. No entrance fade: arriving
+            from the index, the hovered preview flies into this frame through a
+            shared view transition. */}
+        <div className="mt-12">
           {project.url ? (
             <LivePreview
               url={project.url}
               image={project.preview}
               title={project.title}
+              transitionName={`shot-${project.slug}`}
             />
           ) : (
-            <PlaceholderGraphic caption={project.stack.join(" · ")} />
+            <PlaceholderGraphic
+              caption={project.stack.join(" · ")}
+              transitionName={`shot-${project.slug}`}
+            />
           )}
-        </Reveal>
+        </div>
 
         <div className="mt-16 grid gap-12 lg:grid-cols-[1.5fr_1fr] lg:gap-20">
           <div className="flex flex-col gap-12">

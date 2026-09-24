@@ -1,11 +1,9 @@
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowDown01Icon } from "@hugeicons/core-free-icons";
-import MaskText from "@/components/motion/MaskText";
 import Reveal from "@/components/motion/Reveal";
 import Magnetic from "@/components/motion/Magnetic";
 import ScrollFade from "@/components/motion/ScrollFade";
 import HeroBackdrop from "@/components/hero/HeroBackdrop";
-import LensReveal from "@/components/hero/LensReveal";
 import { site } from "@/lib/content";
 
 export default function Hero() {
@@ -14,28 +12,28 @@ export default function Hero() {
       id="top"
       className="relative flex min-h-[100svh] flex-col overflow-hidden px-6 pb-20 pt-28 sm:px-10 lg:px-16"
     >
-      {/* Warm monochrome cursor-reactive field, behind the type. */}
+      {/* The room and its beam of light. The name below stands in it, crisp. */}
       <div aria-hidden className="absolute inset-0 -z-10">
         <HeroBackdrop />
-        {/* legibility scrim — theme-aware, keeps the headline readable */}
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,color-mix(in_srgb,var(--color-ground)_82%,transparent),color-mix(in_srgb,var(--color-ground)_30%,transparent)_55%,transparent)]" />
       </div>
 
       <ScrollFade className="mx-auto my-auto w-full max-w-[1360px]">
         <div className="relative w-fit">
-          <h1 className="text-[clamp(2.5rem,8vw,7rem)] font-medium leading-[0.96] tracking-[-0.035em]">
-            <MaskText as="span" text={`${site.name},`} className="block" />
+          <h1
+            data-hero-name
+            className="text-[clamp(2.5rem,8vw,7rem)] font-medium leading-[0.96] tracking-[-0.035em]"
+          >
             <span className="block">
-              <MaskText as="span" text="software" delay={0.12} />{" "}
-              <MaskText
-                as="span"
-                text="engineer."
-                className="italic font-normal text-[var(--color-muted)]"
-                delay={0.18}
-              />
+              {site.name}
+              <span data-hero-comma>,</span>
+            </span>
+            <span className="block">
+              software{" "}
+              <span className="italic font-normal text-[var(--color-muted)]">
+                engineer.
+              </span>
             </span>
           </h1>
-          <LensReveal />
         </div>
 
         <Reveal delay={0.5} className="mt-10 max-w-[54ch]">

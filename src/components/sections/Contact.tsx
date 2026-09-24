@@ -3,12 +3,11 @@ import {
   Github01Icon,
   Linkedin01Icon,
   File01Icon,
-  ArrowRight01Icon,
 } from "@hugeicons/core-free-icons";
 import MaskText from "@/components/motion/MaskText";
 import Reveal from "@/components/motion/Reveal";
-import Magnetic from "@/components/motion/Magnetic";
 import LocalTime from "@/components/ui/LocalTime";
+import EmailLink from "@/components/ui/EmailLink";
 import { site } from "@/lib/content";
 
 const SOCIAL_ICONS: Record<string, typeof Github01Icon> = {
@@ -24,10 +23,6 @@ export default function Contact() {
       className="border-t border-[var(--color-line)] px-6 pb-16 pt-28 sm:px-10 lg:px-16 lg:pt-40"
     >
       <div className="mx-auto w-full max-w-[1360px]">
-        <Reveal className="mb-8" y={12}>
-          <p className="eyebrow">Contact</p>
-        </Reveal>
-
         <h2 className="max-w-[16ch] text-[clamp(2.5rem,8vw,7rem)] font-medium leading-[0.98] tracking-[-0.03em]">
           <MaskText as="span" text="Let's build" className="block" />
           <MaskText
@@ -39,23 +34,7 @@ export default function Contact() {
         </h2>
 
         <Reveal delay={0.3} className="mt-12">
-          <Magnetic strength={10}>
-            <a
-              href={`mailto:${site.email}`}
-              data-cursor-target
-              className="group inline-flex items-center gap-4 text-xl text-[var(--color-ink)] sm:text-2xl"
-            >
-              <span className="border-b border-[var(--color-line-strong)] pb-1 transition-colors group-hover:border-[var(--color-ink)]">
-                {site.email}
-              </span>
-              <HugeiconsIcon
-                icon={ArrowRight01Icon}
-                size={22}
-                strokeWidth={1.6}
-                className="transition-transform duration-300 ease-[var(--ease-out-expo)] group-hover:translate-x-1"
-              />
-            </a>
-          </Magnetic>
+          <EmailLink email={site.email} />
         </Reveal>
 
         <Reveal delay={0.4} className="mt-7">

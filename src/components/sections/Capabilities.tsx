@@ -30,9 +30,6 @@ export default function Capabilities() {
     >
       <div className="mx-auto w-full max-w-[1360px]">
         <div className="mb-20 max-w-[24ch]">
-          <Reveal className="mb-6" y={12}>
-            <p className="eyebrow">Capabilities</p>
-          </Reveal>
           <MaskText
             as="h2"
             text={capabilities.intro}

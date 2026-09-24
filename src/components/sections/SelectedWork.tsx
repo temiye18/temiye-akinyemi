@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "next-view-transitions";
 import Image from "next/image";
@@ -28,6 +28,9 @@ export default function SelectedWork() {
   const sectionRef = useRef<HTMLElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
+  const leanRef = useRef<HTMLDivElement>(null);
+  const layerRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const prevActive = useRef<number | null>(null);
   const [active, setActive] = useState<number | null>(null);
 
   // Float the preview to the pointer. Motion values, not state, so moving the
@@ -40,15 +43,139 @@ export default function SelectedWork() {
       const dur = reduce ? 0 : 0.45;
       const xTo = gsap.quickTo(el, "x", { duration: dur, ease: "power3.out" });
       const yTo = gsap.quickTo(el, "y", { duration: dur, ease: "power3.out" });
+      // The card hangs from the pointer: moving down the list, its far edge
+      // lags up; moving up, it lags down. Velocity in, spring back out.
+      const lean = leanRef.current;
+      const rotTo = lean && !reduce ? gsap.quickTo(lean, "rotation", { duration: 0.7, ease: "power3.out" }) : null;
+      let ly = 0;
+      let lt = performance.now();
+      let vy = 0;
+      let settle: gsap.core.Tween | null = null;
       const onMove = (e: PointerEvent) => {
         xTo(Math.min(e.clientX, window.innerWidth - 372));
         yTo(gsap.utils.clamp(150, window.innerHeight - 150, e.clientY));
+        if (!rotTo) return;
+        const now = performance.now();
+        const dt = Math.max(8, now - lt);
+        vy = vy * 0.6 + ((e.clientY - ly) / dt) * 0.4;
+        ly = e.clientY;
+        lt = now;
+        rotTo(gsap.utils.clamp(-9, 9, -vy * 7));
+        settle?.kill();
+        settle = gsap.delayedCall(0.09, () => rotTo(0));
       };
       window.addEventListener("pointermove", onMove, { passive: true });
-      return () => window.removeEventListener("pointermove", onMove);
+      return () => {
+        settle?.kill();
+        window.removeEventListener("pointermove", onMove);
+      };
     },
     { dependencies: [fine, reduce] },
   );
+
+  // Scrolling moves rows under a still cursor without any pointer events, so
+  // the preview would strand over the next section. Re-resolve which row (if
+  // any) sits under the last pointer on each scroll frame, by arithmetic
+  // against row geometry cached on resize: a hit-test like elementFromPoint
+  // here would force a full layout every frame of every smooth scroll.
+  useEffect(() => {
+    if (!fine) return;
+    const list = listRef.current;
+    if (!list) return;
+    let px = -1;
+    let py = -1;
+    let raf = 0;
+    let left = 0;
+    let right = 0;
+    let rows: { top: number; bottom: number }[] = [];
+    const docOffset = (el: HTMLElement) => {
+      let x = 0;
+      let y = 0;
+      let node: HTMLElement | null = el;
+      while (node) {
+        x += node.offsetLeft;
+        y += node.offsetTop;
+        node = node.offsetParent as HTMLElement | null;
+      }
+      return { x, y };
+    };
+    const measure = () => {
+      const o = docOffset(list);
+      left = o.x;
+      right = o.x + list.offsetWidth;
+      rows = Array.from(list.querySelectorAll<HTMLElement>("[data-row]")).map((r) => {
+        const top = docOffset(r).y;
+        return { top, bottom: top + r.offsetHeight };
+      });
+    };
+    const onMove = (e: PointerEvent) => {
+      px = e.clientX;
+      py = e.clientY;
+    };
+    const resolve = () => {
+      raf = 0;
+      if (px < 0) return;
+      const y = py + window.scrollY;
+      const i = px >= left && px <= right ? rows.findIndex((r) => y >= r.top && y < r.bottom) : -1;
+      setActive((prev) => {
+        const next = i >= 0 ? i : null;
+        return prev === next ? prev : next;
+      });
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(resolve);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(document.body);
+    window.addEventListener("pointermove", onMove, { passive: true });
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, [fine]);
+
+  // Switching projects wipes the new shot in from the direction you travelled:
+  // down the list it rises from below, up the list it drops from above, with a
+  // slight settle in scale so the image feels placed rather than swapped.
+  useEffect(() => {
+    if (!fine) return;
+    const layers = layerRefs.current;
+    const prev = prevActive.current;
+    if (active === null) {
+      prevActive.current = null;
+      return;
+    }
+    const el = layers[active];
+    if (!el) return;
+    layers.forEach((l, j) => {
+      if (l) l.style.zIndex = j === active ? "2" : j === prev ? "1" : "0";
+    });
+    const media = el.querySelector<HTMLElement>("[data-media]");
+    if (prev === null || prev === active || reduce) {
+      layers.forEach((l, j) => {
+        if (l) gsap.set(l, { clipPath: j === active ? "inset(0% 0% 0% 0%)" : "inset(0% 0% 100% 0%)" });
+      });
+      if (media) gsap.set(media, { scale: 1, yPercent: 0 });
+    } else {
+      const down = active > prev;
+      gsap.fromTo(
+        el,
+        { clipPath: down ? "inset(100% 0% 0% 0%)" : "inset(0% 0% 100% 0%)" },
+        { clipPath: "inset(0% 0% 0% 0%)", duration: 0.62, ease: "expo.out", overwrite: true },
+      );
+      if (media)
+        gsap.fromTo(
+          media,
+          { scale: 1.14, yPercent: down ? 7 : -7 },
+          { scale: 1, yPercent: 0, duration: 0.85, ease: "expo.out", overwrite: true },
+        );
+    }
+    prevActive.current = active;
+  }, [active, fine, reduce]);
 
   // Entrance: rows rise and fade in on scroll, staggered. Visible by default
   // (SSR) so a paused tab or headless render never ships it blank.
@@ -77,7 +204,6 @@ export default function SelectedWork() {
       <div className="mx-auto w-full max-w-[1360px]">
         <header className="mb-8 flex items-end justify-between gap-6 sm:mb-12">
           <div>
-            <p className="eyebrow mb-4">Selected Work</p>
             <h2 className="text-[clamp(2.2rem,5vw,4rem)] font-medium leading-[0.98] tracking-tight">
               Selected{" "}
               <span className="italic font-normal text-[var(--color-muted)]">
@@ -160,19 +286,33 @@ export default function SelectedWork() {
             aria-hidden
             className="pointer-events-none fixed left-0 top-0 z-[60] will-change-transform"
           >
-            <div
-              data-show={active !== null}
-              className="relative ml-6 aspect-[16/10] w-[340px] -translate-y-1/2 scale-95 overflow-hidden rounded-xl border border-[var(--color-line-strong)] bg-[var(--color-surface)] opacity-0 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.75)] transition-[opacity,transform] duration-500 ease-[var(--ease-out-expo)] data-[show=true]:scale-100 data-[show=true]:opacity-100"
-            >
-              {projects.map((p, i) => (
-                <div
-                  key={p.slug}
-                  className="absolute inset-0 transition-opacity duration-300"
-                  style={{ opacity: active === i ? 1 : 0 }}
-                >
-                  <PreviewMedia project={p} sizes="340px" />
-                </div>
-              ))}
+            {/* lean pivots at the pointer, so the card swings from where it hangs */}
+            <div ref={leanRef} className="origin-top-left will-change-transform">
+              <div
+                data-show={active !== null}
+                className="relative ml-6 aspect-[16/10] w-[340px] -translate-y-1/2 scale-95 overflow-hidden rounded-xl border border-[var(--color-line-strong)] bg-[var(--color-surface)] opacity-0 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.75)] transition-[opacity,transform] duration-500 ease-[var(--ease-out-expo)] data-[show=true]:scale-100 data-[show=true]:opacity-100"
+              >
+                {projects.map((p, i) => (
+                  <div
+                    key={p.slug}
+                    ref={(el) => {
+                      layerRefs.current[i] = el;
+                    }}
+                    className="absolute inset-0 overflow-hidden"
+                    style={{
+                      clipPath: "inset(0% 0% 100% 0%)",
+                      // only the shot you're looking at carries the name, so a
+                      // click flies it into the case page's frame (and coming
+                      // back never targets a hidden layer)
+                      viewTransitionName: active === i ? `shot-${p.slug}` : undefined,
+                    }}
+                  >
+                    <div data-media className="absolute inset-0 will-change-transform">
+                      <PreviewMedia project={p} sizes="340px" />
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>,
           document.body,

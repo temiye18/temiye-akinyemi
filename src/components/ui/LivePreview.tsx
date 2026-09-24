@@ -12,10 +12,13 @@ export default function LivePreview({
   url,
   image,
   title,
+  transitionName,
 }: {
   url: string;
   image?: string;
   title: string;
+  /** shared view-transition name, so a preview elsewhere can morph into this frame */
+  transitionName?: string;
 }) {
   const src = image ?? shotUrl(url);
 
@@ -47,7 +50,10 @@ export default function LivePreview({
       </div>
 
       {/* landing-page preview */}
-      <div className="relative aspect-[16/10] overflow-hidden bg-[var(--color-ground)]">
+      <div
+        style={transitionName ? { viewTransitionName: transitionName } : undefined}
+        className="relative aspect-[16/10] overflow-hidden bg-[var(--color-ground)]"
+      >
         <Image
           src={src}
           alt={`${title} landing page`}

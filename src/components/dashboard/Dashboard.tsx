@@ -130,7 +130,7 @@ export default function Dashboard() {
         ref={scrollRef}
         tabIndex={-1}
         data-lenis-prevent
-        className="relative h-full overflow-y-auto overflow-x-hidden overscroll-contain px-5 pb-8 pt-20 outline-none [-webkit-overflow-scrolling:touch] [perspective-origin:50%_38%] [perspective:1700px] sm:px-8 sm:pt-24 lg:px-10 lg:pb-5 lg:pt-[4.75rem]"
+        className="relative h-full overflow-y-auto overflow-x-hidden overscroll-contain px-5 pb-8 pt-20 outline-none [-webkit-overflow-scrolling:touch] [perspective-origin:50%_38%] [perspective:1700px] sm:px-8 sm:pt-24 lg:px-10 lg:pb-3 lg:pt-[4.75rem]"
       >
         <div
           ref={planeRef}

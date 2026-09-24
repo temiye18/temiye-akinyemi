@@ -14,7 +14,6 @@ import SmoothScroll from "@/components/providers/SmoothScroll";
 import ThreeDProvider from "@/components/providers/ThreeDMode";
 import UIModeProvider from "@/components/providers/UIMode";
 import Cursor from "@/components/ui/Cursor";
-import AmbientSound from "@/components/ui/AmbientSound";
 import WaveformOverlay from "@/components/ui/WaveformOverlay";
 import Preloader from "@/components/layout/Preloader";
 
@@ -22,6 +21,9 @@ const fraunces = Fraunces({
   variable: "--font-fraunces",
   subsets: ["latin"],
   style: ["normal", "italic"],
+  // optical size tracks the rendered size automatically; SOFT and WONK are
+  // driven by the type system for warmth and the italic's character
+  axes: ["opsz", "SOFT", "WONK"],
   display: "swap",
 });
 
@@ -91,18 +93,22 @@ export default function RootLayout({
 }>) {
   return (
     <ViewTransitions>
-      <html lang="en" suppressHydrationWarning>
+      <html
+        lang="en"
+        suppressHydrationWarning
+        className={`${fraunces.variable} ${geistSans.variable} ${geistMono.variable}`}
+      >
         <head>
           {/* Set theme + view mode before first paint to avoid a flash. */}
           <script
             dangerouslySetInnerHTML={{
-              __html: `(function(){try{var t=localStorage.getItem('theme');if(t!=='light'&&t!=='dark')t='dark';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}try{var m=localStorage.getItem('view-mode');document.documentElement.setAttribute('data-view-mode',m==='3d'?'3d':'2d');}catch(e){document.documentElement.setAttribute('data-view-mode','2d');}try{var u=localStorage.getItem('ui-mode');document.documentElement.setAttribute('data-ui-mode',u==='dashboard'?'dashboard':'site');}catch(e){document.documentElement.setAttribute('data-ui-mode','site');}})();`,
+              __html: `(function(){try{var t=localStorage.getItem('theme');if(t!=='light'&&t!=='dark')t='dark';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}try{var m=localStorage.getItem('view-mode');document.documentElement.setAttribute('data-view-mode',m==='3d'?'3d':'2d');}catch(e){document.documentElement.setAttribute('data-view-mode','2d');}try{var u=localStorage.getItem('ui-mode');document.documentElement.setAttribute('data-ui-mode',u==='dashboard'?'dashboard':'site');}catch(e){document.documentElement.setAttribute('data-ui-mode','site');}try{if(!matchMedia('(prefers-reduced-motion: reduce)').matches){var r=document.documentElement;r.setAttribute('data-preload','');setTimeout(function(){r.removeAttribute('data-preload');},8000);}}catch(e){}})();`,
             }}
           />
         </head>
         <body
           suppressHydrationWarning
-          className={`${fraunces.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
+          className="antialiased"
         >
           <a
             href="#work"
@@ -120,7 +126,6 @@ export default function RootLayout({
           </SmoothScroll>
           <WaveformOverlay />
           <Cursor />
-          <AmbientSound />
           <Analytics />
           <SpeedInsights />
         </body>
