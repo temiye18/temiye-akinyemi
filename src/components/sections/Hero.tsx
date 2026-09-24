@@ -23,7 +23,10 @@ export default function Hero() {
             data-hero-name
             className="text-[clamp(2.5rem,8vw,7rem)] font-medium leading-[0.96] tracking-[-0.035em]"
           >
-            <span className="block">{site.name},</span>
+            <span className="block">
+              {site.name}
+              <span data-hero-comma>,</span>
+            </span>
             <span className="block">
               software{" "}
               <span className="italic font-normal text-[var(--color-muted)]">

@@ -102,7 +102,7 @@ export default function RootLayout({
           {/* Set theme + view mode before first paint to avoid a flash. */}
           <script
             dangerouslySetInnerHTML={{
-              __html: `(function(){try{var t=localStorage.getItem('theme');if(t!=='light'&&t!=='dark')t='dark';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}try{var m=localStorage.getItem('view-mode');document.documentElement.setAttribute('data-view-mode',m==='3d'?'3d':'2d');}catch(e){document.documentElement.setAttribute('data-view-mode','2d');}try{var u=localStorage.getItem('ui-mode');document.documentElement.setAttribute('data-ui-mode',u==='dashboard'?'dashboard':'site');}catch(e){document.documentElement.setAttribute('data-ui-mode','site');}})();`,
+              __html: `(function(){try{var t=localStorage.getItem('theme');if(t!=='light'&&t!=='dark')t='dark';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}try{var m=localStorage.getItem('view-mode');document.documentElement.setAttribute('data-view-mode',m==='3d'?'3d':'2d');}catch(e){document.documentElement.setAttribute('data-view-mode','2d');}try{var u=localStorage.getItem('ui-mode');document.documentElement.setAttribute('data-ui-mode',u==='dashboard'?'dashboard':'site');}catch(e){document.documentElement.setAttribute('data-ui-mode','site');}try{if(!matchMedia('(prefers-reduced-motion: reduce)').matches){var r=document.documentElement;r.setAttribute('data-preload','');setTimeout(function(){r.removeAttribute('data-preload');},8000);}}catch(e){}})();`,
             }}
           />
         </head>

@@ -524,24 +524,17 @@ export default function BeamField() {
     window.addEventListener("touchmove", onTouch, { passive: true });
     document.addEventListener("pointerleave", onLeave);
 
-    // intro: waits for the preloader to clear the stage. While it waits the
-    // name sits soft and slightly forward; on cue it racks into focus as the
-    // camera dollies in (CSS on the wrapper, so the glint moves with the type).
+    // intro: the preloader flies the name into place and announces the landing;
+    // that is the cue for the light to strike (the name's own entrance is the
+    // preloader's hand-off). Coming back to the page, it strikes straight away.
     let introStart = -1;
-    let introClear = 0;
     const startIntro = () => {
-      if (introStart >= 0) return;
-      introStart = performance.now() + 120;
-      if (wrap.dataset.heroIntro === "pending") {
-        requestAnimationFrame(() => (wrap.dataset.heroIntro = "play"));
-        introClear = window.setTimeout(() => delete wrap.dataset.heroIntro, 3400);
-      }
+      if (introStart < 0) introStart = performance.now() + 60;
     };
     const w = window as Window & { __preloaderDone?: boolean };
-    if (!w.__preloaderDone) wrap.dataset.heroIntro = "pending";
-    else startIntro();
+    if (w.__preloaderDone) startIntro();
     window.addEventListener("preloader:done", startIntro);
-    const introFallback = window.setTimeout(startIntro, 6500);
+    const introFallback = window.setTimeout(startIntro, 12000);
 
     // a tungsten strike: two quick stutters, then it catches and warms up
     const strike = (s: number) => {
@@ -697,8 +690,6 @@ export default function BeamField() {
       running = false;
       cancelAnimationFrame(raf);
       window.clearTimeout(introFallback);
-      window.clearTimeout(introClear);
-      delete wrap.dataset.heroIntro;
       mo.disconnect();
       ro.disconnect();
       io.disconnect();

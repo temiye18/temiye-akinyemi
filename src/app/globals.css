@@ -119,24 +119,57 @@ dd {
   text-wrap: pretty;
 }
 
-/* Hero intro: the name waits soft and slightly forward while the preloader
-   runs, then racks into focus as the light strikes and the camera dollies in.
-   Applied to the name's wrapper so the glint layer moves with the type. */
-[data-hero-intro="pending"] {
-  filter: blur(14px);
-  opacity: 0.2;
-  transform: scale(1.03);
-  transform-origin: 0% 60%;
+/* Hero hand-off. The preloader flies the name from the centre of the screen
+   into the headline's first line; until it lands the headline holds back. On
+   landing, the first line is simply there (the flying name sat exactly on it)
+   and the comma and second line rise into the light as it strikes. */
+[data-hero-intro="pending"] [data-hero-name] > span,
+[data-hero-intro="pending"] [data-hero-comma] {
+  opacity: 0;
 }
-[data-hero-intro="play"] {
-  filter: blur(0);
-  opacity: 1;
-  transform: none;
-  transform-origin: 0% 60%;
-  transition:
-    filter 1.5s var(--ease-out-expo) 0.55s,
-    opacity 1.3s var(--ease-out-expo) 0.4s,
-    transform 2.6s var(--ease-out-expo) 0.2s;
+/* No display changes here: the headline's box must not move when the intro
+   starts or ends (the hero re-rasterises the name on any resize), so the comma
+   fades in place and only the second line, already a block, rises. */
+[data-hero-intro="play"] [data-hero-comma] {
+  animation: hero-comma-in 0.9s var(--ease-out-expo) 0.18s both;
+}
+[data-hero-intro="play"] [data-hero-name] > span:last-child {
+  animation: hero-line-in 1.15s var(--ease-out-expo) 0.32s both;
+}
+@keyframes hero-comma-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+/* opacity + transform only: a blur filter here forces a large new raster
+   layer for the 7rem line at the exact moment the light strikes */
+@keyframes hero-line-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.28em);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+:root[data-theme="light"] .pl-glow {
+  opacity: 0.3;
+}
+
+/* Pre-paint cover: on a full load (motion allowed) the page never flashes
+   before the preloader mounts; the preloader lifts it as its own ground takes
+   over. A failsafe in the head script lifts it regardless. */
+:root[data-preload] body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: var(--color-ground);
 }
 
 /* Signal graphic — emanating pings for projects with no live site. */
