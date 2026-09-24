@@ -198,6 +198,34 @@ dd {
 }
 
 /* ------------------------------------------------------------------ *
+ * About: the portrait hung as a framed print. The gallery light rakes in
+ * from beyond the top-left (the Beam's side), warming the upper corner and
+ * falling off toward the lower right; the frame casts a soft shadow down and
+ * away from it. All static: only the light's opacity is scrubbed.
+ * ------------------------------------------------------------------ */
+.print-frame {
+  box-shadow:
+    0 28px 60px -34px rgba(0, 0, 0, 0.85),
+    0 8px 18px -12px rgba(0, 0, 0, 0.5);
+}
+:root[data-theme="light"] .print-frame {
+  box-shadow:
+    0 28px 60px -34px rgba(28, 24, 18, 0.35),
+    0 8px 18px -12px rgba(28, 24, 18, 0.18);
+}
+/* The About statement's line masks (SplitText, while it reveals): room for
+   descenders below each line, taken back so the layout does not move. */
+.about-line-mask {
+  padding-bottom: 0.16em;
+  margin-bottom: -0.16em;
+}
+.print-light {
+  background:
+    radial-gradient(120% 90% at 0% 0%, rgba(255, 244, 222, 0.2), rgba(255, 244, 222, 0.06) 38%, transparent 62%),
+    linear-gradient(135deg, transparent 55%, rgba(8, 6, 4, 0.28));
+}
+
+/* ------------------------------------------------------------------ *
  * Dashboard ("The House"). One room partitioned by sliding planes: a fixed
  * wall, and five panels on one track that slide open over each other. Tonal
  * planes joined by hairline joints, the moving edge marked in ink, one solid
