@@ -21,7 +21,7 @@ A single-surface portfolio. Two indexable route patterns: `/` (one long page) an
 
 - **`src/lib/content.ts` is the single source of truth** for all copy — `site`, `projects`, `about`, `capabilities`, `experience`. Sections, case-study pages, OG-image cards, `sitemap.ts`, and the JSON-LD builders all read from it. Edit content here, not in components.
 
-- **The homepage is composed, not monolithic.** `src/app/page.tsx` stacks `src/components/sections/*` inside `<Stage>` → `<SpacePlane>`. Most sections are Server Components; only interactive ones (`SelectedWork`, `Toolkit`) and motion wrappers are `"use client"`.
+- **The homepage is composed, not monolithic.** `src/app/page.tsx` stacks `src/components/sections/*` inside `<Stage>` → `<SpacePlane>`. Most sections are Server Components; only interactive ones (`SelectedWork`, `CapabilityIndex`, the `AboutChoreo` entrance) and motion wrappers are `"use client"`.
 
 - **Fonts are wired on `<html>`, not `<body>`.** `next/font` exposes `--font-fraunces` / `--font-geist-*` via classes on the element it's applied to, and the Tailwind `@theme` tokens (`--font-display`, `--font-sans`) resolve those at `:root`. On `<body>` they are undefined at `:root`, the tokens resolve empty, and every heading silently falls back to the OS system font (this shipped unnoticed in v1). Keep the classes on `<html>`.
 

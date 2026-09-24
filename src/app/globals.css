@@ -226,6 +226,76 @@ dd {
 }
 
 /* ------------------------------------------------------------------ *
+ * Capabilities: a working index. The lit discipline and the tools it uses
+ * stay at full ink; everything else recedes. Opacity only.
+ * ------------------------------------------------------------------ */
+/* A soft, symmetric curve: the house expo-out lands most of its change in the
+   first few frames, which reads as a snap at this scale. Coming up is a
+   little quicker than receding, so the index answers promptly and settles
+   slowly. (A transition belongs to the state being entered, hence two.) */
+.cap-index {
+  --cap-ease: cubic-bezier(0.45, 0, 0.25, 1);
+}
+.cap-row .lean,
+.cap-row .cap-body,
+.cap-row .cap-marks,
+.cap-tool > * {
+  transition: opacity 0.55s var(--cap-ease);
+}
+.cap-row:not([data-lit]) .lean,
+.cap-row:not([data-lit]) .cap-body,
+.cap-row:not([data-lit]) .cap-marks,
+.cap-tool:not([data-lit]) > * {
+  transition-duration: 0.85s;
+}
+/* The roman and italic never cross at full strength (both at half reads as
+   a double image): the outgoing cut steps away quickly, the incoming one
+   follows a beat later and eases in. */
+.cap-row .lean > * {
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 1, 1);
+}
+.cap-row .lean[data-on] > .lean-italic,
+.cap-row .lean:not([data-on]) > .lean-roman {
+  transition: opacity 0.6s cubic-bezier(0, 0, 0.2, 1) 0.12s;
+}
+/* Receding needs a pointer to answer it; on touch the ledger stays fully
+   readable and each row's own marks carry the connection. */
+@media (hover: hover) and (pointer: fine) {
+  .cap-row:not([data-lit]) .lean {
+    opacity: 0.5;
+  }
+  .cap-row:not([data-lit]) .cap-body {
+    opacity: 0.55;
+  }
+  .cap-row:not([data-lit]) .cap-marks {
+    opacity: 0.3;
+  }
+  /* the cell's contents recede, never the cell: a translucent cell would let
+     the grid's joint colour through and read as a lighter plate */
+  .cap-tool:not([data-lit]) > * {
+    opacity: 0.3;
+  }
+}
+.cap-row:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 4px;
+}
+/* the heading's line masks while it reveals: room for descenders */
+.cap-line-mask {
+  padding-bottom: 0.16em;
+  margin-bottom: -0.16em;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cap-row .lean,
+  .cap-row .lean > *,
+  .cap-row .cap-body,
+  .cap-row .cap-marks,
+  .cap-tool > * {
+    transition: none !important;
+  }
+}
+
+/* ------------------------------------------------------------------ *
  * Dashboard ("The House"). One room partitioned by sliding planes: a fixed
  * wall, and five panels on one track that slide open over each other. Tonal
  * planes joined by hairline joints, the moving edge marked in ink, one solid
