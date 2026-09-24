@@ -14,10 +14,6 @@ export default function About() {
       className="border-t border-[var(--color-line)] px-6 py-28 sm:px-10 lg:px-16 lg:py-40"
     >
       <div className="mx-auto w-full max-w-[1360px]">
-        <Reveal className="mb-12" y={12}>
-          <p className="eyebrow">About</p>
-        </Reveal>
-
         <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
           {/* portrait — the visual anchor, stretches to the column height */}
           <Reveal y={12} className="lg:h-full">

@@ -14,7 +14,6 @@ import SmoothScroll from "@/components/providers/SmoothScroll";
 import ThreeDProvider from "@/components/providers/ThreeDMode";
 import UIModeProvider from "@/components/providers/UIMode";
 import Cursor from "@/components/ui/Cursor";
-import AmbientSound from "@/components/ui/AmbientSound";
 import WaveformOverlay from "@/components/ui/WaveformOverlay";
 import Preloader from "@/components/layout/Preloader";
 
@@ -22,6 +21,9 @@ const fraunces = Fraunces({
   variable: "--font-fraunces",
   subsets: ["latin"],
   style: ["normal", "italic"],
+  // optical size tracks the rendered size automatically; SOFT and WONK are
+  // driven by the type system for warmth and the italic's character
+  axes: ["opsz", "SOFT", "WONK"],
   display: "swap",
 });
 
@@ -91,7 +93,11 @@ export default function RootLayout({
 }>) {
   return (
     <ViewTransitions>
-      <html lang="en" suppressHydrationWarning>
+      <html
+        lang="en"
+        suppressHydrationWarning
+        className={`${fraunces.variable} ${geistSans.variable} ${geistMono.variable}`}
+      >
         <head>
           {/* Set theme + view mode before first paint to avoid a flash. */}
           <script
@@ -102,7 +108,7 @@ export default function RootLayout({
         </head>
         <body
           suppressHydrationWarning
-          className={`${fraunces.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
+          className="antialiased"
         >
           <a
             href="#work"
@@ -120,7 +126,6 @@ export default function RootLayout({
           </SmoothScroll>
           <WaveformOverlay />
           <Cursor />
-          <AmbientSound />
           <Analytics />
           <SpeedInsights />
         </body>

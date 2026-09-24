@@ -11,9 +11,6 @@ export default function Experience() {
       <div className="mx-auto w-full max-w-[1360px]">
         <div className="mb-16 flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
           <div>
-            <Reveal className="mb-6" y={12}>
-              <p className="eyebrow">Experience</p>
-            </Reveal>
             <MaskText
               as="h2"
               text="A record of the work."
@@ -28,15 +25,23 @@ export default function Experience() {
         </div>
 
         <ol className="mx-auto max-w-[1000px]">
-          {experience.map((r, i) => (
+          {experience.map((r, i) => {
+            const current = /present/i.test(r.period);
+            return (
             <Reveal key={`${r.company}-${r.period}`} delay={(i % 2) * 0.05}>
               <li className="group grid grid-cols-1 gap-x-12 gap-y-4 border-t border-[var(--color-line)] py-9 last:border-b sm:grid-cols-[13rem_1fr]">
                 <div className="flex items-start gap-4">
                   <span
                     aria-hidden
-                    className="mt-2 inline-block h-1.5 w-1.5 flex-none rounded-full bg-[var(--color-line-strong)] transition-colors duration-300 group-hover:bg-[var(--color-ink)]"
+                    className={`mt-2 inline-block h-1.5 w-1.5 flex-none rounded-full transition-colors duration-300 group-hover:bg-[var(--color-ink)] ${
+                      current
+                        ? "bg-[var(--color-ink)] ring-4 ring-[var(--color-accent-soft)]"
+                        : "bg-[var(--color-line-strong)]"
+                    }`}
                   />
-                  <span className="eyebrow pt-0.5">{r.period}</span>
+                  <span className={`eyebrow pt-0.5 ${current ? "text-[var(--color-muted)]" : ""}`}>
+                    {r.period}
+                  </span>
                 </div>
 
                 <div>
@@ -61,7 +66,8 @@ export default function Experience() {
                 </div>
               </li>
             </Reveal>
-          ))}
+            );
+          })}
         </ol>
       </div>
     </section>

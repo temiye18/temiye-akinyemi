@@ -18,6 +18,12 @@ function useMounted() {
   );
 }
 
+/** Tell the hero the stage is clear (it runs its intro stroke then). */
+function announceDone() {
+  (window as Window & { __preloaderDone?: boolean }).__preloaderDone = true;
+  window.dispatchEvent(new Event("preloader:done"));
+}
+
 /**
  * Preloader → hero handoff, choreographed with GSAP. The name rises in from
  * behind masks while a progress line and counter run, then the panel lifts away
@@ -39,7 +45,10 @@ export default function Preloader() {
   const counterRef = useRef<HTMLSpanElement>(null);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
 
-  const finish = () => setDismissed(true);
+  const finish = () => {
+    setDismissed(true);
+    announceDone();
+  };
 
   // lock scroll while the overlay is up
   useEffect(() => {

@@ -98,34 +98,37 @@ body {
   background-attachment: fixed;
 }
 
-/* Display / kinetic type leans on Fraunces */
+/* Display / kinetic type leans on Fraunces. Optical size follows the rendered
+   size (the opsz axis is loaded), so a 7rem headline gets the high-contrast
+   display cut and a 1rem title the sturdier text cut, from one family. */
 h1,
 h2,
 h3 {
   font-family: var(--font-display), Georgia, serif;
+  font-optical-sizing: auto;
   text-wrap: balance;
   font-weight: 500;
+  font-kerning: normal;
+  hanging-punctuation: first;
 }
 
-/* Hero lens — soft veil over the headline that the pointer wipes clear. */
-.lens-veil {
-  --mx: 50%;
-  --my: 50%;
-  background: color-mix(in srgb, var(--color-ground) 34%, transparent);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-  -webkit-mask: radial-gradient(
-    circle 210px at var(--mx) var(--my),
-    transparent 0%,
-    transparent 30%,
-    #000 74%
-  );
-  mask: radial-gradient(
-    circle 210px at var(--mx) var(--my),
-    transparent 0%,
-    transparent 30%,
-    #000 74%
-  );
+/* Body copy never strands a lone word on its last line. */
+p,
+li,
+dd {
+  text-wrap: pretty;
+}
+
+/* Hero glass — while the WebGL pane is live it paints the headline itself, so
+   the DOM <h1> keeps its layout, semantics and selection but drops its ink.
+   Colour is left intact (the GL layer reads it); only the fill goes clear. */
+[data-glass-text][data-glass="on"],
+[data-glass-text][data-glass="on"] * {
+  -webkit-text-fill-color: transparent;
+}
+[data-glass-text][data-glass="on"] ::selection,
+[data-glass-text][data-glass="on"]::selection {
+  -webkit-text-fill-color: var(--color-ground);
 }
 
 /* Signal graphic — emanating pings for projects with no live site. */
@@ -150,25 +153,6 @@ h3 {
   .signal-ring {
     animation: none;
     opacity: 0;
-  }
-}
-
-/* Ambient-sound toggle — the speaker breathes gently while sound is playing. */
-@keyframes sound-live {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.09);
-  }
-}
-.sound-live {
-  animation: sound-live 1.9s ease-in-out infinite;
-}
-@media (prefers-reduced-motion: reduce) {
-  .sound-live {
-    animation: none;
   }
 }
 
@@ -315,6 +299,288 @@ h3 {
     0 14px 38px -12px rgba(0, 0, 0, 0.6),
     inset 0 1px 0 rgba(255, 253, 246, 0.45),
     inset 0 -10px 16px -13px rgba(0, 0, 0, 0.5);
+}
+
+/* ------------------------------------------------------------------ *
+ * Nav — one quiet instrument (see components/nav/*)
+ * Everything here moves on transform / opacity / clip-path / stroke-dash.
+ * No live backdrop blur (the deck floats over the animating hero glass) and
+ * no animated box-shadow (a measured cursor-jank source on this site).
+ * ------------------------------------------------------------------ */
+
+/* The enamel deck: a solid, faintly lifted capsule. */
+.deck {
+  border: 1px solid var(--color-line);
+  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+  box-shadow:
+    0 14px 34px -22px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 253, 246, 0.06);
+}
+:root[data-theme="light"] .deck {
+  box-shadow:
+    0 14px 30px -22px rgba(28, 24, 18, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+/* Label that appears after a beat on hover or keyboard focus. */
+.deck-tip {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  z-index: 5;
+  padding: 5px 9px;
+  border-radius: 8px;
+  background: var(--color-ink);
+  color: var(--color-ground);
+  font: 500 11px/1 var(--font-sans), system-ui, sans-serif;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -3px);
+  transition:
+    opacity 0.16s ease,
+    transform 0.3s var(--ease-out-expo);
+}
+.deck-btn:hover .deck-tip,
+.deck-btn:focus-visible .deck-tip {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  transition-delay: 0.35s;
+}
+/* the last switch sits near the edge: anchor its label to the right */
+.deck-btn:last-child .deck-tip {
+  left: auto;
+  right: 0;
+  transform: translate(0, -3px);
+}
+.deck-btn:last-child:hover .deck-tip,
+.deck-btn:last-child:focus-visible .deck-tip {
+  transform: translate(0, 0);
+}
+@media (hover: none) {
+  .deck-tip {
+    display: none;
+  }
+}
+
+.deck-kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 6px;
+  border: 1px solid var(--color-line);
+  background: var(--color-ground);
+  font: 500 11px/1 var(--font-sans), system-ui, sans-serif;
+  color: var(--color-muted);
+}
+
+/* Command menu panel. */
+.palette {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line-strong);
+  box-shadow:
+    0 40px 100px -40px rgba(0, 0, 0, 0.8),
+    inset 0 1px 0 rgba(255, 253, 246, 0.05);
+}
+:root[data-theme="light"] .palette {
+  box-shadow:
+    0 40px 90px -40px rgba(28, 24, 18, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* Wordmark hand-off: "T." unfurls into "Temiye Akinyemi." */
+.wordmark-track {
+  display: inline-grid;
+  grid-template-columns: 0fr;
+  transition: grid-template-columns 0.75s var(--ease-in-out-quart);
+}
+.wordmark[data-expanded="true"] .wordmark-track {
+  grid-template-columns: 1fr;
+}
+.wordmark-rest {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  /* room for descenders (the y's) inside the clip */
+  padding-block: 0.15em 0.28em;
+  margin-block: -0.15em -0.28em;
+}
+.wordmark-ch {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.4em);
+  transition:
+    opacity 0.3s var(--ease-out-expo),
+    transform 0.5s var(--ease-out-expo);
+}
+.wordmark[data-expanded="true"] .wordmark-ch {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(var(--i) * 22ms + 140ms);
+}
+
+/* Glyph: eclipse. Sun by day; the moon's shadow slides over it at night. */
+.glyph-theme-shadow {
+  transform: translate(7px, -7px);
+  transition: transform 0.65s var(--ease-out-expo);
+}
+.glyph-theme[data-dark="true"] .glyph-theme-shadow {
+  transform: translate(0, 0);
+}
+.glyph-theme-rays {
+  transform-box: view-box;
+  transform-origin: 12px 12px;
+  transition:
+    transform 0.65s var(--ease-out-expo),
+    opacity 0.35s ease;
+}
+.glyph-theme[data-dark="true"] .glyph-theme-rays {
+  transform: rotate(-70deg) scale(0.45);
+  opacity: 0;
+}
+/* at night the moon grows into the room the rays leave */
+.glyph-theme-disc {
+  transform-box: view-box;
+  transform-origin: 12px 12px;
+  transition: transform 0.65s var(--ease-out-expo);
+}
+.glyph-theme[data-dark="true"] .glyph-theme-disc {
+  transform: scale(1.4);
+}
+
+/* Glyph: layers. One flat plane, or two lifting apart in perspective. */
+.glyph-depth {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  perspective: 60px;
+}
+/* at rest: one plane already seen in perspective, so it reads as depth */
+.glyph-depth-stage {
+  position: relative;
+  width: 11px;
+  height: 11px;
+  transform-style: preserve-3d;
+  transform: rotateX(52deg) rotateZ(-42deg);
+  transition: transform 0.75s var(--ease-out-expo);
+}
+.glyph-depth-plane {
+  position: absolute;
+  inset: 0;
+  border: 1.5px solid currentColor;
+  border-radius: 2.5px;
+  transition:
+    transform 0.75s var(--ease-out-expo),
+    opacity 0.4s ease;
+}
+.glyph-depth-back {
+  opacity: 0;
+}
+.glyph-depth[data-on="true"] .glyph-depth-stage {
+  transform: rotateX(58deg) rotateZ(-42deg);
+}
+.glyph-depth[data-on="true"] .glyph-depth-front {
+  transform: translateZ(4.5px);
+}
+.glyph-depth[data-on="true"] .glyph-depth-back {
+  opacity: 0.55;
+  transform: translateZ(-3px);
+}
+
+/* Glyph: page and bento. Four strokes, two arrangements. */
+.glyph-layout rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.6s var(--ease-out-expo);
+}
+.glyph-layout[data-dash="false"] .glyph-layout-a {
+  transform: translate(4.5px, -1.5px) scale(2.286, 0.571);
+}
+.glyph-layout[data-dash="false"] .glyph-layout-b {
+  transform: translate(-4.5px, 5px) scale(2.286, 0.02);
+}
+.glyph-layout[data-dash="false"] .glyph-layout-c {
+  transform: translate(4.5px, -0.5px) scale(2.286, 0.02);
+}
+.glyph-layout[data-dash="false"] .glyph-layout-d {
+  transform: translate(-6.5px, 3px) scale(1.714, 0.02);
+}
+
+/* Glyph: speaker. Waves draw out when on; a small cross draws in when off. */
+.glyph-sound-wave,
+.glyph-sound-x {
+  stroke-dasharray: 1;
+  transition: stroke-dashoffset 0.45s var(--ease-out-expo);
+}
+.glyph-sound-wave {
+  stroke-dashoffset: 1;
+}
+.glyph-sound[data-on="true"] .glyph-sound-wave {
+  stroke-dashoffset: 0;
+}
+.glyph-sound-wave-2,
+.glyph-sound-x-2 {
+  transition-delay: 0.07s;
+}
+.glyph-sound-x {
+  stroke-dashoffset: 0;
+}
+.glyph-sound[data-on="true"] .glyph-sound-x {
+  stroke-dashoffset: 1;
+}
+
+/* Menu: two strokes (the lower one shorter) that fold into an X. */
+.menu-glyph {
+  position: relative;
+  display: block;
+  width: 16px;
+  height: 10px;
+}
+.menu-glyph span {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1.5px;
+  border-radius: 2px;
+  background: currentColor;
+  transition: transform 0.55s var(--ease-out-expo);
+}
+.menu-glyph span:first-child {
+  top: 1.5px;
+}
+.menu-glyph span:last-child {
+  top: 7px;
+  transform: translateX(-19%) scaleX(0.62);
+}
+.menu-glyph[data-open="true"] span:first-child {
+  transform: translateY(2.75px) rotate(45deg);
+}
+.menu-glyph[data-open="true"] span:last-child {
+  transform: translateY(-2.75px) rotate(-45deg);
+}
+
+/* Theme spill: the new palette grows as a circle from the pressed switch. */
+:root.theme-swap::view-transition-old(root),
+:root.theme-swap::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+:root.theme-swap::view-transition-new(root) {
+  z-index: 2;
+}
+/* colour transitions pause for the swap so the snapshot is the finished palette,
+   and shared-element names stand down so the whole page is one snapshot the
+   circle reveals (otherwise the work titles would flip on their own) */
+:root.theme-swap,
+:root.theme-swap * {
+  transition: none !important;
+}
+:root.theme-swap * {
+  view-transition-name: none !important;
 }
 
 /* Small label — a quiet sans, not a mono costume. */

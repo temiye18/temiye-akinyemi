@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { useReducedMotion } from "motion/react";
 
 // WebGL canvas never renders on the server.
-const ShaderField = dynamic(() => import("./ShaderField"), {
+const GlassField = dynamic(() => import("./GlassField"), {
   ssr: false,
   loading: () => <StaticBackdrop />,
 });
@@ -25,5 +25,5 @@ function StaticBackdrop() {
 export default function HeroBackdrop() {
   const reduce = useReducedMotion();
   if (reduce) return <StaticBackdrop />;
-  return <ShaderField />;
+  return <GlassField />;
 }

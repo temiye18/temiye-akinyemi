@@ -39,7 +39,7 @@ export default function ScrollFade({
   );
 
   return (
-    <div ref={ref} className={className}>
+    <div ref={ref} data-scroll-fade className={className}>
       {children}
     </div>
   );

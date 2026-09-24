@@ -1,5 +1,5 @@
 /**
- * Tiny shared store bridging the audio source (AmbientSound) and the visualizer
+ * Tiny shared store bridging the audio source (lib/sound) and the visualizer
  * (WaveformOverlay): whether sound is playing, and the live AnalyserNode to read
  * the waveform from. useSyncExternalStore-friendly (stable server snapshot).
  */
