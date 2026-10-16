@@ -120,7 +120,7 @@ function RoomFrame({
 }
 
 /* ------------------------------------------------------------------ *
- * Work: an index of four, and a detail plane that slides to the one you
+ * Work: an index of the projects, and a detail plane that slides to the one you
  * point at. The selection is a plane too: it slides behind the list.
  * ------------------------------------------------------------------ */
 function WorkRoom(props: RoomProps) {
@@ -155,16 +155,16 @@ function WorkRoom(props: RoomProps) {
     >
       <div
         className="grid border-t border-[var(--color-line)] lg:h-full lg:grid-cols-[minmax(0,18rem)_minmax(0,1fr)]"
-        style={{ "--sel": sel } as React.CSSProperties}
+        style={{ "--sel": sel, "--rows": projects.length } as React.CSSProperties}
       >
         <div
           role="group"
           aria-label="Projects"
           onKeyDown={onListKey}
           onPointerLeave={() => window.clearTimeout(intent.current)}
-          className="relative lg:grid lg:h-full lg:grid-rows-4 lg:border-r lg:border-[var(--color-line)]"
+          className="relative lg:grid lg:h-full lg:grid-rows-[repeat(var(--rows),minmax(0,1fr))] lg:border-r lg:border-[var(--color-line)]"
         >
-          {/* the selection plane, a quarter of the column, sliding behind the rows */}
+          {/* the selection plane, one row of the column, sliding behind the rows */}
           <span aria-hidden className="work-sel pointer-events-none absolute inset-x-0 top-0">
             <span className="absolute inset-y-0 left-0 w-[2px] bg-[var(--color-ink)]" />
           </span>

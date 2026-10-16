@@ -43,6 +43,9 @@ export type Project = {
   url?: string;
   // optional self-hosted screenshot (in /public); overrides the live capture
   preview?: string;
+  // bump when the live site is redesigned, so browsers drop their cached
+  // capture (see shotUrl in lib/preview.ts)
+  previewVersion?: string;
   // public source repository
   github?: string;
 };
@@ -50,29 +53,28 @@ export type Project = {
 export const projects: Project[] = [
   {
     index: "01",
-    slug: "resume-by-temi",
-    url: "https://resume-by-temi.vercel.app/",
-    github: "https://github.com/temiye18/resume-by-temi",
-    title: "Résumé by Temi",
-    discipline: "AI resume builder",
-    year: "2025",
-    stack: ["React 19", "TypeScript", "Google Gemini", "IndexedDB", "Zod"],
+    slug: "bantawars",
+    url: "https://www.bantawars.com/",
+    title: "BantaWars",
+    discipline: "Social prediction game",
+    year: "2026",
+    stack: ["Next.js", "TypeScript", "Supabase", "PostgreSQL", "Tailwind CSS", "Satori"],
     blurb:
-      "A browser-based resume builder that turns your details into an ATS-ready PDF, with no account and no server. AI reads your old resume and a built-in scorer tells you how to make it stronger.",
-    signature: true,
+      "A free football prediction league for friend groups. Friends score each game before kick-off, the app grades the picks and keeps the table, and every result becomes a card the group can share in any app.",
+    signature: false,
     role: "Solo project",
-    timeline: "2025",
+    timeline: "2026",
     challenge:
-      "Make a resume builder that respects privacy and runs entirely in the browser, while still using AI to parse existing resumes and score them for applicant tracking systems.",
+      "Make a prediction league that friends actually keep playing: no app to download, fair locks at kick-off, instant grading, and banter that travels outside the app.",
     approach:
-      "The whole app runs client-side. Resumes are parsed with Google Gemini, saved locally in IndexedDB, and rendered to PDF in the browser. A schema-driven design lets six templates share one validation and rendering pipeline.",
+      "Next.js on Vercel with Supabase for auth and data. Postgres functions grade every pick and rank club fanbases, and row-level security locks predictions at the official kick-off. A results pipeline syncs four competitions from football-data.org and archives each season on its own. Share cards for results and the end-of-season Wrapped render on the server with Satori and sharp.",
     result:
-      "A private, account-free builder that produces ATS-friendly resumes and grades them on formatting, keywords, action verbs, and how well they match a job description.",
+      "Live with 10 players in its first weeks. In the most active league every member predicted, and players shared 68 cards from it. Covers the Premier League, Champions League, La Liga and Serie A (82 clubs, 1,284 fixtures), with league management for owners and self-serve account deletion for NDPR and UK GDPR.",
     highlights: [
-      "Client-side PDF generation, no server needed",
-      "AI parsing of PDF, DOCX, and TXT resumes",
-      "ATS scoring for keywords, voice, verbs, and fit",
-      "Schema-driven: six templates, one pipeline",
+      "Grading and fanbase rankings in Postgres functions",
+      "Picks locked at kick-off by row-level security",
+      "Server-rendered share cards for any app",
+      "Four competitions with automatic season rollover",
     ],
   },
   {
@@ -103,8 +105,36 @@ export const projects: Project[] = [
   },
   {
     index: "03",
+    slug: "resume-by-temi",
+    url: "https://resume-by-temi.vercel.app/",
+    github: "https://github.com/temiye18/resume-by-temi",
+    title: "Résumé by Temi",
+    discipline: "AI resume builder",
+    year: "2025",
+    stack: ["React 19", "TypeScript", "Google Gemini", "IndexedDB", "Zod"],
+    blurb:
+      "A browser-based resume builder that turns your details into an ATS-ready PDF, with no account and no server. AI reads your old resume and a built-in scorer tells you how to make it stronger.",
+    signature: true,
+    role: "Solo project",
+    timeline: "2025",
+    challenge:
+      "Make a resume builder that respects privacy and runs entirely in the browser, while still using AI to parse existing resumes and score them for applicant tracking systems.",
+    approach:
+      "The whole app runs client-side. Resumes are parsed with Google Gemini, saved locally in IndexedDB, and rendered to PDF in the browser. A schema-driven design lets six templates share one validation and rendering pipeline.",
+    result:
+      "A private, account-free builder that produces ATS-friendly resumes and grades them on formatting, keywords, action verbs, and how well they match a job description.",
+    highlights: [
+      "Client-side PDF generation, no server needed",
+      "AI parsing of PDF, DOCX, and TXT resumes",
+      "ATS scoring for keywords, voice, verbs, and fit",
+      "Schema-driven: six templates, one pipeline",
+    ],
+  },
+  {
+    index: "04",
     slug: "wifi-health-monitor",
     url: "https://wifi-health-monitor-website.vercel.app/",
+    previewVersion: "2026-10-16",
     github: "https://github.com/temiye18/wifi-health-monitor",
     title: "WiFi Health Monitor",
     discipline: "Desktop monitoring app",
@@ -129,7 +159,7 @@ export const projects: Project[] = [
     ],
   },
   {
-    index: "04",
+    index: "05",
     slug: "sharesafe",
     github: "https://github.com/G2-FINAL-YEAR-PROJECT/ShareSafe",
     title: "ShareSafe",
