@@ -17,7 +17,7 @@ There is **no test suite**. The verification loop after any change is: `npx tsc 
 
 ## Architecture
 
-A single-surface portfolio. Two indexable route patterns: `/` (one long page) and `/work/[slug]` (4 statically-generated case studies). Everything below is the cross-file wiring that isn't obvious from any single file.
+A single-surface portfolio. Two indexable route patterns: `/` (one long page) and `/work/[slug]` (statically-generated case studies, one per project). Everything below is the cross-file wiring that isn't obvious from any single file.
 
 - **`src/lib/content.ts` is the single source of truth** for all copy — `site`, `projects`, `about`, `capabilities`, `experience`. Sections, case-study pages, OG-image cards, `sitemap.ts`, and the JSON-LD builders all read from it. Edit content here, not in components.
 

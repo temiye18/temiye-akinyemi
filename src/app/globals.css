@@ -466,7 +466,7 @@ dd {
   /* Work: the selection plane slides behind the rows, the detail planes
      slide on a vertical track */
   .work-sel {
-    height: 25%;
+    height: calc(100% / var(--rows, 4));
     background: var(--house-surface-3);
     transform: translateY(calc(var(--sel) * 100%));
     transition: transform 0.55s var(--ease-in-out-quart);

@@ -59,6 +59,9 @@ export default function LivePreview({
           alt={`${title} landing page`}
           fill
           unoptimized={!image}
+          // the case page's largest paint, right under its header
+          loading="eager"
+          fetchPriority="high"
           sizes="(max-width: 1024px) 100vw, 1100px"
           className="object-cover object-top transition-transform duration-700 ease-[var(--ease-out-expo)] group-hover:scale-[1.03]"
         />

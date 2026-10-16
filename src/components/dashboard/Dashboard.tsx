@@ -403,6 +403,9 @@ export default function Dashboard() {
                     alt={site.name}
                     fill
                     sizes="(max-width: 1024px) 160px, 25vw"
+                    // the wall photo is the dashboard's largest paint
+                    loading="eager"
+                    fetchPriority="high"
                     onError={() => setHasPhoto(false)}
                     className="object-cover object-[50%_18%]"
                   />
